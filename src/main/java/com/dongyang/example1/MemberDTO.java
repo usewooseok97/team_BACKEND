@@ -1,16 +1,16 @@
 package com.dongyang.example1;
 
 public class MemberDTO {
-	private String memeberid;
+	private String memberid;
 	private String password;
 	private String name;
 	private String email;
 	
-	public String getMemeberid() {
-		return memeberid;
+	public String getMemberid() {
+		return memberid;
 	}
-	public void setMemeberid(String memeberid) {
-		this.memeberid = memeberid;
+	public void setMemberid(String memberid) {
+		this.memberid = memberid;
 	}
 	public String getPassword() {
 		return password;

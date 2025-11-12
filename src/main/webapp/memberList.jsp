@@ -26,7 +26,7 @@
 for(MemberDTO dto : aList){
 %>
 	<tr>
-		<td><%=dto.getMemeberid() %></td>
+		<td><%=dto.getMemberid() %></td>
 		<td><%=dto.getPassword() %></td>
 		<td><%=dto.getName() %></td>
 		<td><%=dto.getEmail() %></td>

@@ -26,7 +26,7 @@ public class LoginServlet extends HttpServlet {
 		
 		//2. JDBC
 		MemberDTO mdto=new MemberDTO();
-		mdto.setMemeberid(id);
+		mdto.setMemberid(id);
 		mdto.setPassword(password);
 		
 		MemberDAO mdao=new MemberDAO();

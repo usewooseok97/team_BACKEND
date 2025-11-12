@@ -18,7 +18,7 @@ public class MemberDAO {
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
 				 MemberDTO dto=new MemberDTO();
-				 dto.setMemeberid(rs.getString("memberid"));
+				 dto.setMemberid(rs.getString("memberid"));
 				 dto.setPassword(rs.getString("password"));
 				 dto.setName(rs.getString("name"));
 				 dto.setEmail(rs.getString("email"));
@@ -43,7 +43,7 @@ public class MemberDAO {
 			
 //			3단계 : SQL로 데이터 조작
 			pstmt=con.prepareStatement(SQL_LOGIN);
-			pstmt.setString(1, mdto.getMemeberid());
+			pstmt.setString(1, mdto.getMemberid());
 			pstmt.setString(2, mdto.getPassword());
 			rs=pstmt.executeQuery();
 			//pstmt.executeUpdate();
