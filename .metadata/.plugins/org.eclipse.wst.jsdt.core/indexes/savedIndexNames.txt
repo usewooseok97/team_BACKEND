@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+C:\BACKEND_kang\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+2999480530.index
+349740947.index
+1180454817.index
+541355939.index
+3381642529.index
+297329645.index
