@@ -1,54 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="data.CategoryData" %>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORK OUT - 운동 플랫폼</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-</head>
-<body>
-    <%
-        // CategoryData를 사용하여 데이터 가져오기
-        pageContext.setAttribute("bodyParts", CategoryData.getBodyParts());
-        pageContext.setAttribute("sports", CategoryData.getSports());
-        pageContext.setAttribute("machines", CategoryData.getMachines());
-        pageContext.setAttribute("products", CategoryData.getProducts());
-    %>
-    
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <a href="#" class="logo">🏋️</a>
-        <div class="search-container">
-            <form action="search.jsp" method="get">
-                <input type="text" name="q" class="search-input" placeholder="검색...">
-            </form>
-        </div>
-        <div class="nav-right">
-            <div class="lang-selector">
-                <input type="radio" id="lang-en" name="language" class="lang-radio" checked>
-                <label for="lang-en" class="lang-label">EN</label>
-                /
-                <input type="radio" id="lang-kr" name="language" class="lang-radio">
-                <label for="lang-kr" class="lang-label">KR</label>
-            </div>
-            <a href="store.jsp" class="nav-button">store</a>
-            <a href="register.jsp" class="nav-button">regist</a>
-            <a href="login.jsp" class="nav-button login">login</a>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1 class="hero-title">WORK<br>OUT</h1>
-        <div class="hero-search">
-            <form action="search.jsp" method="get">
-                <input type="text" name="q" placeholder="search...">
-            </form>
-        </div>
-    </section>
+<%
+    // CategoryData를 사용하여 데이터 가져오기
+    pageContext.setAttribute("bodyParts", CategoryData.getBodyParts());
+    pageContext.setAttribute("sports", CategoryData.getSports());
+    pageContext.setAttribute("machines", CategoryData.getMachines());
+    pageContext.setAttribute("products", CategoryData.getProducts());
+%>
+<%@ include file="header.jsp" %>
 
     <!-- BODY Section -->
     <section class="category-section">
@@ -267,20 +226,4 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a> |
-            <a href="#">Terms of Service</a> |
-            <a href="#">Medical Disclaimer</a> |
-            <a href="#">Cookie Policy</a>
-        </div>
-        <div class="footer-disclaimer">
-            *Medical Disclaimer: Always consult with a qualified healthcare professional before beginning any new diet or exercise program.
-        </div>
-        <div class="footer-copyright">
-            © 2023 2조 강우석 이준영 조윤재. All rights reserved.
-        </div>
-    </footer>
-</body>
-</html>
+<%@ include file="footer.jsp" %>
