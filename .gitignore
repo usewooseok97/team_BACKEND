@@ -1,0 +1,9 @@
+# MongoDB 데이터 파일 제외
+mongo_data/
+
+# IDE/OS 파일 제외
+*.log
+*.env
+.vscode/
+.idea/
+.DS_Store
