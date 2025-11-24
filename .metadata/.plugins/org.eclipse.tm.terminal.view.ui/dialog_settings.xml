@@ -5,6 +5,8 @@
 		<section name="SettingsPanelControl">
 			<section name="Git Bash">
 			</section>
+			<section name="Local Terminal">
+			</section>
 		</section>
 	</section>
 </section>

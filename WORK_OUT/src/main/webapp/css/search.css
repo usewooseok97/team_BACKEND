@@ -1,0 +1,18 @@
+@charset "UTF-8";
+        .coming-soon {
+            text-align: center;
+            padding: 200px 20px;
+        }
+        .coming-soon h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .coming-soon p {
+            font-size: 18px;
+            color: #666;
+        }
+        .search-query {
+            color: #667eea;
+            font-weight: bold;
+        }
