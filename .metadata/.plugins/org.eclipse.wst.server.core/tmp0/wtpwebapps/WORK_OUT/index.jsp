@@ -8,18 +8,19 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 
 <!-- Hero Section -->
 <section class="hero">
-  <h1 class="hero-title">WORK<br />OUT</h1>
-  <div class="hero-search">
-    <form action="search.jsp" method="get">
-      <input type="text" name="q" placeholder="search..." />
-    </form>
-  </div>
+  	<h1 class="hero-title">WORK<br />OUT</h1>
+	<div class="hero-search">
+	  <form action="search.jsp" method="get">
+	    <input type="text" name="q" placeholder="search..." />
+	    <!-- 돋보기를 버튼 안으로 이동 -->
+	    <button type="submit">🔍</button>
+	  </form>
+	</div>
 </section>
 <!-- BODY Section -->
 <section class="category-section">
   <h2 class="category-header">BODY</h2>
 
-  <!-- Radio buttons for tabs -->
   <input type="radio" id="body-all" name="body-tab" class="tab-radio" checked />
   <input type="radio" id="body-upper" name="body-tab" class="tab-radio" />
   <input type="radio" id="body-lower" name="body-tab" class="tab-radio" />
@@ -31,7 +32,6 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
   </div>
 
   <div class="grid-container">
-    <!-- ALL Grid -->
     <div class="category-grid" id="bodyGrid-all">
       <c:forEach var="item" items="${bodyParts}">
         <div class="category-item">
@@ -40,50 +40,30 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
         </div>
       </c:forEach>
     </div>
-
-    <!-- UPPER Grid -->
-    <div class="category-grid" id="bodyGrid-upper">
-      <c:forEach var="item" items="${bodyParts}">
-        <c:if test="${item.category == 'upper'}">
-          <div class="category-item">
-            <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
-          </div>
-        </c:if>
-      </c:forEach>
     </div>
 
-    <!-- LOWER Grid -->
-    <div class="category-grid" id="bodyGrid-lower">
-      <c:forEach var="item" items="${bodyParts}">
-        <c:if test="${item.category == 'lower'}">
-          <div class="category-item">
-            <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
-          </div>
-        </c:if>
-      </c:forEach>
-    </div>
-  </div>
-
-  <div class="svg-container">
-    <object
-      class="muscle"
-      data="./asset/front.svg"
-      type="image/svg+xml"
-      width=250;
-      height=400;
-    ></object>
-    <object
-      class="muscle"
-      data="./asset/back.svg"
-      type="image/svg+xml"
-            width=250;
-      height=400;
-    ></object>
-    <
-  </div>
-</section>
+	<div class="svg-container">
+	    <form id="muscleForm" action="search.jsp" method="get">
+	        <input type="hidden" id="hidden-q" name="q" value=""> 
+	        <object
+	          id="svg-front"
+	          class="muscle-obj"
+	          data="./asset/front.svg"
+	          type="image/svg+xml"
+	          width="250"
+	          height="400"
+	        ></object>
+	        <object
+	          id="svg-back"
+	          class="muscle-obj"
+	          data="./asset/back.svg"
+	          type="image/svg+xml"
+	          width="250"
+	          height="400"
+	        ></object>
+	    </form>
+	  </div>
+  </section>
 
 <!-- SPORTS Section -->
 <section class="category-section">
@@ -261,5 +241,42 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     </c:forEach>
   </div>
 </section>
+<script>
+window.addEventListener('load', function() {
+    // 폼과 히든 인풋 요소 가져오기
+    const form = document.getElementById('muscleForm');
+    const hiddenInput = document.getElementById('hidden-q');
+    
+    // 모든 object 태그 선택
+    const svgObjects = document.querySelectorAll('.muscle-obj');
 
+    svgObjects.forEach(obj => {
+        // SVG 내부 문서 접근 (반드시 load 이벤트 안에서 실행)
+        const svgDoc = obj.contentDocument;
+
+        if (svgDoc) {
+            // SVG 내부의 모든 근육 그룹(.muscle) 선택
+            const muscles = svgDoc.querySelectorAll('.muscle');
+
+            muscles.forEach(muscle => {
+                // 마우스 커서 포인터로 변경 (UX 향상)
+                muscle.style.cursor = 'pointer';
+
+                // 클릭 이벤트 연결
+                muscle.addEventListener('click', function() {
+                    // 1. 클릭한 근육의 한글 이름 가져오기 (data-value-k="승모")
+                    // 만약 영문명으로 검색하고 싶다면 dataset.valueE 사용
+                    const muscleName = this.dataset.valueK; 
+
+                    // 2. input name="q" 에 값 넣기
+                    hiddenInput.value = muscleName;
+
+                    // 3. 폼 강제 제출 (search.jsp?q=승모 형태로 이동됨)
+                    form.submit();
+                });
+            });
+        }
+    });
+});
+</script>
 <%@ include file="footer.jsp" %>

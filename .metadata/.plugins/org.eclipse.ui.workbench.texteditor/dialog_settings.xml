@@ -4,6 +4,7 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="hero-search"/>
 			<item value=":focus"/>
 			<item value=".form-input"/>
 			<item value="form-label .required"/>
