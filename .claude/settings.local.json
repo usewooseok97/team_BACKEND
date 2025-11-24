@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dir \"c:\\BACKEND_kang\\WORK_OUT\\build\")"
-    ],
-    "deny": [],
-    "ask": []
-  }
-}
