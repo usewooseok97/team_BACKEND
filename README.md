@@ -1,7 +1,7 @@
 # WORKOUT_DB
 
 ## Overview
-This project contains the Docker configuration for a MongoDB database used in the Workout project.<br>
+This project contains the Docker configuration for a MongoDB database used in the Workout project. <br>
 본 프로젝트는 Docker Configuration을 통한 MongoDB 데이터베이스를 사용하였습니다.
 
 - **MongoDB** 7.0
