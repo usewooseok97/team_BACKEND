@@ -15,3 +15,6 @@
 0:0:0:0:0:0:0:1 - - [25/Nov/2025:13:38:29 +0900] "GET /WORK_OUT/WEB-INF/classes/mongoutil/MongoUtil.java HTTP/1.1" 404 722
 0:0:0:0:0:0:0:1 - - [25/Nov/2025:13:38:29 +0900] "GET /favicon.ico HTTP/1.1" 404 819
 127.0.0.1 - - [25/Nov/2025:16:01:21 +0900] "GET / HTTP/1.1" 404 808
+127.0.0.1 - - [25/Nov/2025:16:11:19 +0900] "GET / HTTP/1.1" 404 808
+0:0:0:0:0:0:0:1 - - [25/Nov/2025:16:11:20 +0900] "GET /WORK_OUT/WEB-INF/classes/mongoutil/MongoConn.java HTTP/1.1" 404 722
+0:0:0:0:0:0:0:1 - - [25/Nov/2025:16:11:20 +0900] "GET /favicon.ico HTTP/1.1" 404 819
