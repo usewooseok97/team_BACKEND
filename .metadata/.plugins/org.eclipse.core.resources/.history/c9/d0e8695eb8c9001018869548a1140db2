@@ -1,0 +1,32 @@
+package com.example.db;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+
+public class MongoDBUtil {
+    // 1. MongoClient 객체를 한 번만 생성하여 재사용합니다.
+    private static MongoClient mongoClient = null;
+    private static final String CONNECTION_URI = 
+        "mongodb://admin:admin1234@localhost:27017/?authSource=admin";
+    private static final String DATABASE_NAME = "my-mongo"; // 사용할 데이터베이스 이름
+
+    public static MongoClient getMongoClient() {
+        if (mongoClient == null) {
+            try {
+                // 2. 연결 URI를 사용하여 클라이언트 생성
+                mongoClient = MongoClients.create(CONNECTION_URI); 
+                System.out.println("MongoDB 연결 성공.");
+            } catch (Exception e) {
+                System.err.println("MongoDB 연결 실패: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return mongoClient;
+    }
+
+    public static MongoDatabase getDatabase() {
+        // 3. 연결된 클라이언트에서 특정 데이터베이스 객체 가져오기
+        return getMongoClient().getDatabase(DATABASE_NAME);
+    }
+}

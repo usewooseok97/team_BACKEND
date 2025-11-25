@@ -1,0 +1,39 @@
+package mongoutil;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+
+public class MongoConn {
+    // Define the connection string (localhost and default port 27017)
+    private static final String CONNECTION_STRING = "mongodb://localhost:27017";
+    
+    // Define the database name to use
+    private static final String DB_NAME = "myDatabase";
+    
+    private static MongoClient mongoClient = null;
+
+    // Static block to initialize the client when the class is loaded
+    static {
+        try {
+            // Create a new MongoClient instance
+            mongoClient = MongoClients.create(CONNECTION_STRING);
+            // Log success message (optional)
+            System.out.println("MongoDB Connected Successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to get the MongoDatabase instance
+    public static MongoDatabase getDatabase() {
+        return mongoClient.getDatabase(DB_NAME);
+    }
+    
+    // Method to close the connection (usually called when the app shuts down)
+    public static void close() {
+        if (mongoClient != null) {
+            mongoClient.close();
+        }
+    }
+}

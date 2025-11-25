@@ -14,5 +14,4 @@ services:
       - mongo_data:/data/db
 
 volumes:
-  - ./mongo-init:/docker-entrypoint-initdb.d
- # mongo_data:
+  mongo_data:
