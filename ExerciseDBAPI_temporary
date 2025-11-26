@@ -1,0 +1,53 @@
+https://edb-docs.up.railway.app/docs/authentication
+🔐 Authentication
+To access the ExerciseDB API, all requests must be authenticated using a valid RapidAPI key. There are two supported methods for authentication:
+
+✅ Method 1: API Key as Query Parameter
+Append your RapidAPI key directly to the request URL using the rapidapi-key query parameter.
+
+fetch("https://exercisedb.p.rapidapi.com/exercises?rapidapi-key=YOUR_API_KEY")
+  .then((res) => res.json())
+  .then((data) => console.log(data))
+  .catch((err) => console.error(err));
+
+This method is simple and works well for client-side apps and testing environments.
+
+✅ Method 2: API Key in Header
+Alternatively, you can include the API key in the X-RapidAPI-Key header.
+
+fetch("https://exercisedb.p.rapidapi.com/exercises", {
+  headers: {
+    "X-RapidAPI-Key": "YOUR_API_KEY",
+  },
+})
+  .then((res) => res.json())
+  .then((data) => console.log(data))
+  .catch((err) => console.error(err));
+
+This is commonly used in server-side applications or where you want to keep the key out of the URL.
+
+⚠️ Common Issue: "You are not subscribed to this API"
+If you receive an error message saying:
+
+"You are not subscribed to this API."
+
+This usually means your RapidAPI key is valid, but you haven’t subscribed to the ExerciseDB API through your RapidAPI account.
+
+To resolve this:
+
+Visit the ExerciseDB API listing on RapidAPI.
+Click Subscribe to Test or select a pricing plan.
+Once subscribed, use the provided API key in your requests.
+For a detailed explanation and troubleshooting steps, check out this helpful guide:
+RapidAPI Error: You are not subscribed to this API – Medium
+
+📌 Notes
+The base URL for all API requests is: https://exercisedb.p.rapidapi.com
+You only need to use one authentication method per request — either query parameter or header.
+Using the query parameter is quick and convenient for testing or client-side apps.
+Using the header is recommended for server-side or production environments to keep the key out of URLs.
+If you receive a 401 Unauthorized response:
+Double-check that your API key is active and correctly entered
+Ensure you're not sending both authentication methods at once
+Make sure your Host is set to exercisedb.p.rapidapi.com if your platform requires it
+For details on how RapidAPI keys work, visit the RapidAPI Key Documentation
