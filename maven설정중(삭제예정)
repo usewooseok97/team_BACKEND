@@ -1,0 +1,118 @@
+<h1>이거 삭제 예정임. MAVEN 다 설치하고 로컬에서 할거임.</h1>
+
+pom.xml:
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 프로젝트 정보 -->
+    <groupId>com.dongyang.example1</groupId>
+    <artifactId>my-mongo-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!-- MongoDB Java 드라이버 의존성 추가 -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>4.8.0</version> <!-- 최신 버전 확인 후 사용 -->
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.dongyang.example1.MongoDBExample</mainClass> <!-- 실행할 Java 클래스 지정 -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+example1/MongoDBExample.java:
+package com.dongyang.example1;
+
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MongoDBExample {
+
+    public static void main(String[] args) {
+        // MongoDB 클라이언트 생성
+        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+
+        // 연결할 데이터베이스 선택 (없으면 자동 생성)
+        MongoDatabase database = mongoClient.getDatabase("exercisedb");
+
+        // 연결할 컬렉션 선택 (없으면 자동 생성)
+        MongoCollection<Document> collection = database.getCollection("exercises");
+
+        // 데이터 삽입 예시
+        insertExerciseData(collection);
+
+        // 데이터 조회 예시
+        List<Document> exercises = getAllExercises(collection);
+
+        // 조회된 데이터 출력
+        for (Document doc : exercises) {
+            System.out.println("Exercise: " + doc.toJson());
+        }
+
+        // MongoDB 연결 종료
+        mongoClient.close();
+    }
+
+    // 예시: 운동 데이터 삽입
+    private static void insertExerciseData(MongoCollection<Document> collection) {
+        // 운동 데이터 생성
+        List<Document> exercises = new ArrayList<>();
+        exercises.add(new Document("name", "Push-up")
+                .append("category", "Strength")
+                .append("target", "Chest")
+                .append("equipment", "None"));
+
+        exercises.add(new Document("name", "Squat")
+                .append("category", "Strength")
+                .append("target", "Legs")
+                .append("equipment", "None"));
+
+        exercises.add(new Document("name", "Pull-up")
+                .append("category", "Strength")
+                .append("target", "Back")
+                .append("equipment", "Pull-up bar"));
+
+        // 데이터 삽입
+        collection.insertMany(exercises);
+        System.out.println("운동 데이터 삽입 완료");
+    }
+
+    // 예시: 모든 운동 데이터 조회
+    private static List<Document> getAllExercises(MongoCollection<Document> collection) {
+        List<Document> exercises = new ArrayList<>();
+        // 컬렉션에서 모든 문서 조회
+        for (Document doc : collection.find()) {
+            exercises.add(doc);
+        }
+        return exercises;
+    }
+}
+
