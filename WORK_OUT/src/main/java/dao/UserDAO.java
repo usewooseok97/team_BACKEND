@@ -159,15 +159,23 @@ public class UserDAO {
      */
     public boolean update(UserDTO user) {
         try {
+            System.out.println("=== 회원 정보 수정 ===");
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Name: " + user.getName());
+            System.out.println("Role: " + user.getRole());
+
             userCollection.updateOne(
                 Filters.eq("_id", new ObjectId(user.getId())),
                 Updates.combine(
                     Updates.set("password", user.getPassword()),
-                    Updates.set("name", user.getName())
+                    Updates.set("name", user.getName()),
+                    Updates.set("role", user.getRole())
                 )
             );
+            System.out.println("회원 정보 수정 성공!");
             return true;
         } catch (Exception e) {
+            System.out.println("회원 정보 수정 오류:");
             e.printStackTrace();
             return false;
         }
