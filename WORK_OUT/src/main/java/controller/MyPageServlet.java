@@ -81,15 +81,11 @@ public class MyPageServlet extends HttpServlet {
         // 폼 데이터 받기
         String password = request.getParameter("password");
         String passwordConfirm = request.getParameter("passwordConfirm");
-        String email = request.getParameter("email");
         String name = request.getParameter("name");
-        String phone = request.getParameter("phone");
 
         // 유효성 검사
-        if (email == null || email.trim().isEmpty() ||
-            name == null || name.trim().isEmpty()) {
-
-            request.setAttribute("error", "모든 필수 항목을 입력해주세요.");
+        if (name == null || name.trim().isEmpty()) {
+            request.setAttribute("error", "이름은 필수 항목입니다.");
             request.setAttribute("user", currentUser);
             request.getRequestDispatcher("/mypage.jsp").forward(request, response);
             return;
@@ -106,18 +102,8 @@ public class MyPageServlet extends HttpServlet {
             currentUser.setPassword(password);
         }
 
-        // Email 중복 확인 (본인 이메일 제외)
-        if (!email.equals(currentUser.getEmail()) && userDAO.isEmailExists(email)) {
-            request.setAttribute("error", "이미 사용 중인 이메일입니다.");
-            request.setAttribute("user", currentUser);
-            request.getRequestDispatcher("/mypage.jsp").forward(request, response);
-            return;
-        }
-
         // 정보 업데이트
-        currentUser.setEmail(email);
         currentUser.setName(name);
-        currentUser.setPhone(phone);
 
         // DB 업데이트
         boolean success = userDAO.update(currentUser);

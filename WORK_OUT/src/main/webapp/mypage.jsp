@@ -72,18 +72,6 @@
                        value="${user.name}" required>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="email">이메일 <span class="required">*</span></label>
-                <input type="email" id="email" name="email" class="form-input"
-                       value="${user.email}" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="phone">전화번호</label>
-                <input type="tel" id="phone" name="phone" class="form-input"
-                       value="${user.phone}" placeholder="전화번호를 입력하세요">
-            </div>
-
             <button type="submit" class="form-button">정보 수정</button>
         </form>
 

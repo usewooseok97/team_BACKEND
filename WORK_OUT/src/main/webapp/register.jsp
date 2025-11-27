@@ -43,18 +43,6 @@
                        placeholder="이름을 입력하세요" required>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="email">이메일 <span class="required">*</span></label>
-                <input type="email" id="email" name="email" class="form-input"
-                       placeholder="이메일을 입력하세요" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="phone">전화번호</label>
-                <input type="tel" id="phone" name="phone" class="form-input"
-                       placeholder="전화번호를 입력하세요 (선택)">
-            </div>
-
             <button type="submit" class="form-button">회원가입</button>
         </form>
 

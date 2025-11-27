@@ -9,7 +9,7 @@ public class MongoConn {
     private static final String CONNECTION_STRING = "mongodb+srv://yoonjae:yoonjae@workoutcluster.snlejtj.mongodb.net/";
     
     // Define the database name to use
-    private static final String DB_NAME = "myDatabase";
+    private static final String DB_NAME = "WORKOUT_DB";
     
     private static MongoClient mongoClient = null;
 
@@ -19,8 +19,13 @@ public class MongoConn {
             // Create a new MongoClient instance
             mongoClient = MongoClients.create(CONNECTION_STRING);
             // Log success message (optional)
+            System.out.println("====================================");
             System.out.println("MongoDB Connected Successfully!");
+            System.out.println("Connection String: " + CONNECTION_STRING);
+            System.out.println("Database Name: " + DB_NAME);
+            System.out.println("====================================");
         } catch (Exception e) {
+            System.out.println("MongoDB 연결 실패!");
             e.printStackTrace();
         }
     }
