@@ -5,25 +5,36 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 public class MongoConn {
-    private static final String MONGO_USERNAME = "admin";
-    private static final String MONGO_PASSWORD = "admin";
-    private static final String MONGO_HOST = "localhost";
-    private static final String MONGO_PORT = "27017";
-    private static final String DB_NAME = "workout_db";
+    // private static final String MONGO_USERNAME = "admin";
+    // private static final String MONGO_PASSWORD = "admin";
+    // private static final String MONGO_HOST = "localhost";
+    // private static final String MONGO_PORT = "27017";
+    // private static final String DB_NAME = "workout_db";
 
-    private static final String CONNECTION_STRING = String.format(
-        "mongodb://%s:%s@%s:%s/%s?authSource=admin",
-        MONGO_USERNAME, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT, DB_NAME
-    );
+    // private static final String CONNECTION_STRING = String.format(
+    //     "mongodb://%s:%s@%s:%s/%s?authSource=admin",
+    //     MONGO_USERNAME, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT, DB_NAME
+    // );
 
+    // Define the connection string (localhost and default port 27017)
+    private static final String CONNECTION_STRING = "mongodb+srv://yoonjae:yoonjae@workoutcluster.snlejtj.mongodb.net/";
+    
+    // Define the database name to use
+    private static final String DB_NAME = "WORKOUT_DB";
+    
     private static MongoClient mongoClient = null;
 
     static {
         try {
             mongoClient = MongoClients.create(CONNECTION_STRING);
-            System.out.println("MongoDB Connected Successfully to " + DB_NAME);
+            // Log success message (optional)
+            System.out.println("====================================");
+            System.out.println("MongoDB Connected Successfully!");
+            System.out.println("Connection String: " + CONNECTION_STRING);
+            System.out.println("Database Name: " + DB_NAME);
+            System.out.println("====================================");
         } catch (Exception e) {
-            System.err.println("MongoDB Connection Failed: " + e.getMessage());
+            System.out.println("MongoDB 연결 실패!");
             e.printStackTrace();
         }
     }

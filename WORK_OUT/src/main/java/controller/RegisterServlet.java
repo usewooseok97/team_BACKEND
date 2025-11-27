@@ -46,17 +46,14 @@ public class RegisterServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String passwordConfirm = request.getParameter("passwordConfirm");
-        String email = request.getParameter("email");
         String name = request.getParameter("name");
-        String phone = request.getParameter("phone");
 
-        // 유효성 검사
+        // 유효성 검사 (username, password, name 필수)
         if (username == null || username.trim().isEmpty() ||
             password == null || password.trim().isEmpty() ||
-            email == null || email.trim().isEmpty() ||
             name == null || name.trim().isEmpty()) {
 
-            request.setAttribute("error", "모든 필수 항목을 입력해주세요.");
+            request.setAttribute("error", "아이디, 비밀번호, 이름은 필수 항목입니다.");
             request.getRequestDispatcher("/register.jsp").forward(request, response);
             return;
         }
@@ -75,20 +72,11 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // Email 중복 확인
-        if (userDAO.isEmailExists(email)) {
-            request.setAttribute("error", "이미 사용 중인 이메일입니다.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-            return;
-        }
-
         // UserDTO 생성
         UserDTO user = new UserDTO();
         user.setUsername(username);
         user.setPassword(password);
-        user.setEmail(email);
         user.setName(name);
-        user.setPhone(phone);
         user.setRole("USER"); // 기본값은 일반 사용자
 
         // 회원가입 처리

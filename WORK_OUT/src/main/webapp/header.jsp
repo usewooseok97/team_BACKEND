@@ -31,7 +31,7 @@
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
                     <!-- 로그인 상태 -->
-                    <c:if test="${sessionScope.user.role == 'ADMIN'}">
+                    <c:if test="${sessionScope.user.admin}">
                         <a href="${pageContext.request.contextPath}/admin/users" class="nav-button">회원관리</a>
                     </c:if>
                     <a href="${pageContext.request.contextPath}/mypage" class="nav-button">마이페이지</a>

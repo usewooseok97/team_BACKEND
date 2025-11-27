@@ -53,8 +53,6 @@
                         <th>ID</th>
                         <th>아이디</th>
                         <th>이름</th>
-                        <th>이메일</th>
-                        <th>전화번호</th>
                         <th>권한</th>
                         <th>가입일</th>
                         <th>관리</th>
@@ -66,8 +64,6 @@
                             <td>${user.id}</td>
                             <td>${user.username}</td>
                             <td>${user.name}</td>
-                            <td>${user.email}</td>
-                            <td>${user.phone}</td>
                             <td>
                                 <c:choose>
                                     <c:when test="${user.role == 'SUPER_ADMIN'}">

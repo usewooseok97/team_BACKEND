@@ -1,49 +1,42 @@
 package dao;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import dto.UserDTO;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import mongoutil.MongoConn;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
- * 회원 정보를 관리하는 DAO 클래스 (메모리 기반)
- * 나중에 MongoDB로 전환 가능하도록 설계
+ * 회원 정보를 관리하는 DAO 클래스 (MongoDB 기반)
  */
 public class UserDAO {
     // 싱글톤 패턴
     private static UserDAO instance = new UserDAO();
 
-    // 메모리 기반 저장소 (ConcurrentHashMap으로 Thread-safe 보장)
-    private Map<String, UserDTO> userMap;
-    private AtomicInteger idCounter;
+    private MongoCollection<Document> userCollection;
 
     private UserDAO() {
-        userMap = new ConcurrentHashMap<>();
-        idCounter = new AtomicInteger(1);
+        MongoDatabase database = MongoConn.getDatabase();
+        userCollection = database.getCollection("users");
 
-        // 테스트용 최고 관리자 계정 생성
-        UserDTO admin = new UserDTO();
-        admin.setId("1");
-        admin.setUsername("admin");
-        admin.setPassword("admin123");
-        admin.setEmail("admin@workout.com");
-        admin.setName("최고관리자");
-        admin.setPhone("010-0000-0000");
-        admin.setRole("SUPER_ADMIN");
-        userMap.put(admin.getUsername(), admin);
-
-        // 테스트용 일반 사용자 생성
-        UserDTO user = new UserDTO();
-        user.setId("2");
-        user.setUsername("user1");
-        user.setPassword("user123");
-        user.setEmail("user1@workout.com");
-        user.setName("홍길동");
-        user.setPhone("010-1111-1111");
-        user.setRole("USER");
-        userMap.put(user.getUsername(), user);
-
-        idCounter.set(3);
+        // 초기 관리자 계정 생성 (존재하지 않을 경우에만)
+        if (userCollection.countDocuments(Filters.eq("username", "admin")) == 0) {
+            UserDTO admin = new UserDTO();
+            admin.setUsername("admin");
+            admin.setPassword("admin123");
+            admin.setName("관리자");
+            admin.setRole("SUPER_ADMIN");
+            register(admin);
+        }
     }
 
     public static UserDAO getInstance() {
@@ -51,98 +44,192 @@ public class UserDAO {
     }
 
     /**
+     * UserDTO를 MongoDB Document로 변환
+     */
+    private Document userToDocument(UserDTO user) {
+        Document doc = new Document();
+        if (user.getId() != null) {
+            doc.append("_id", new ObjectId(user.getId()));
+        }
+        doc.append("username", user.getUsername())
+           .append("password", user.getPassword())
+           .append("name", user.getName())
+           .append("role", user.getRole() != null ? user.getRole() : "USER")
+           .append("regDate", Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+
+        return doc;
+    }
+
+    /**
+     * MongoDB Document를 UserDTO로 변환
+     */
+    private UserDTO documentToUser(Document doc) {
+        if (doc == null) return null;
+
+        UserDTO user = new UserDTO();
+        user.setId(doc.getObjectId("_id").toString());
+        user.setUsername(doc.getString("username"));
+        user.setPassword(doc.getString("password"));
+        user.setName(doc.getString("name"));
+        user.setRole(doc.getString("role"));
+
+        if (doc.containsKey("regDate")) {
+            Date regDate = doc.getDate("regDate");
+            user.setRegDate(LocalDateTime.ofInstant(regDate.toInstant(), ZoneId.systemDefault()));
+        }
+
+        return user;
+    }
+
+    /**
      * 회원 가입
      */
     public boolean register(UserDTO user) {
-        // 중복 확인
-        if (userMap.containsKey(user.getUsername())) {
+        try {
+            System.out.println("=== 회원가입 시작 ===");
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Name: " + user.getName());
+
+            // 중복 확인
+            if (isUsernameExists(user.getUsername())) {
+                System.out.println("오류: 이미 존재하는 아이디");
+                return false;
+            }
+
+            // MongoDB에 저장
+            Document doc = userToDocument(user);
+            System.out.println("저장할 Document: " + doc.toJson());
+            userCollection.insertOne(doc);
+            System.out.println("회원가입 성공!");
+            return true;
+        } catch (Exception e) {
+            System.out.println("회원가입 오류 발생:");
+            e.printStackTrace();
             return false;
         }
-
-        // ID 자동 생성
-        user.setId(String.valueOf(idCounter.getAndIncrement()));
-
-        // 저장
-        userMap.put(user.getUsername(), user);
-        return true;
     }
 
     /**
      * 로그인 (username과 password 확인)
      */
     public UserDTO login(String username, String password) {
-        UserDTO user = userMap.get(username);
-        if (user != null && user.getPassword().equals(password)) {
-            return user;
+        try {
+            Document doc = userCollection.find(
+                Filters.and(
+                    Filters.eq("username", username),
+                    Filters.eq("password", password)
+                )
+            ).first();
+
+            return documentToUser(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
      * Username으로 회원 조회
      */
     public UserDTO findByUsername(String username) {
-        return userMap.get(username);
+        try {
+            Document doc = userCollection.find(Filters.eq("username", username)).first();
+            return documentToUser(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
      * ID로 회원 조회
      */
     public UserDTO findById(String id) {
-        return userMap.values().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        try {
+            Document doc = userCollection.find(Filters.eq("_id", new ObjectId(id))).first();
+            return documentToUser(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
      * 회원 정보 수정
      */
     public boolean update(UserDTO user) {
-        if (!userMap.containsKey(user.getUsername())) {
+        try {
+            System.out.println("=== 회원 정보 수정 ===");
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Name: " + user.getName());
+            System.out.println("Role: " + user.getRole());
+
+            userCollection.updateOne(
+                Filters.eq("_id", new ObjectId(user.getId())),
+                Updates.combine(
+                    Updates.set("password", user.getPassword()),
+                    Updates.set("name", user.getName()),
+                    Updates.set("role", user.getRole())
+                )
+            );
+            System.out.println("회원 정보 수정 성공!");
+            return true;
+        } catch (Exception e) {
+            System.out.println("회원 정보 수정 오류:");
+            e.printStackTrace();
             return false;
         }
-        userMap.put(user.getUsername(), user);
-        return true;
     }
 
     /**
      * 회원 삭제
      */
     public boolean delete(String username) {
-        if (!userMap.containsKey(username)) {
+        try {
+            userCollection.deleteOne(Filters.eq("username", username));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-        userMap.remove(username);
-        return true;
     }
 
     /**
      * 모든 회원 조회 (관리자용)
      */
     public List<UserDTO> findAll() {
-        return new ArrayList<>(userMap.values());
+        List<UserDTO> users = new ArrayList<>();
+        try {
+            for (Document doc : userCollection.find()) {
+                users.add(documentToUser(doc));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 
     /**
      * Username 중복 확인
      */
     public boolean isUsernameExists(String username) {
-        return userMap.containsKey(username);
-    }
-
-    /**
-     * Email 중복 확인
-     */
-    public boolean isEmailExists(String email) {
-        return userMap.values().stream()
-                .anyMatch(user -> user.getEmail().equals(email));
+        try {
+            return userCollection.countDocuments(Filters.eq("username", username)) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
      * 회원 수 조회
      */
     public int getUserCount() {
-        return userMap.size();
+        try {
+            return (int) userCollection.countDocuments();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 }

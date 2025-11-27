@@ -9,9 +9,7 @@ public class UserDTO {
     private String id;              // 사용자 ID (Primary Key)
     private String username;        // 사용자명 (로그인용)
     private String password;        // 비밀번호
-    private String email;           // 이메일
     private String name;            // 실명
-    private String phone;           // 전화번호
     private String role;            // 권한 (USER, ADMIN)
     private LocalDateTime regDate;  // 가입일시
 
@@ -20,13 +18,11 @@ public class UserDTO {
         this.role = "USER"; // 기본값은 일반 사용자
     }
 
-    public UserDTO(String id, String username, String password, String email, String name, String phone, String role) {
+    public UserDTO(String id, String username, String password, String name, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.email = email;
         this.name = name;
-        this.phone = phone;
         this.role = role;
         this.regDate = LocalDateTime.now();
     }
@@ -56,28 +52,12 @@ public class UserDTO {
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getRole() {
@@ -115,9 +95,7 @@ public class UserDTO {
         return "UserDTO{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
                 ", role='" + role + '\'' +
                 ", regDate=" + regDate +
                 '}';
