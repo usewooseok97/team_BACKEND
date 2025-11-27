@@ -6,7 +6,7 @@ import com.mongodb.client.MongoDatabase;
 
 public class MongoConn {
     // Define the connection string (localhost and default port 27017)
-    private static final String CONNECTION_STRING = "mongodb://localhost:27017";
+    private static final String CONNECTION_STRING = "mongodb+srv://yoonjae:yoonjae@workoutcluster.snlejtj.mongodb.net/";
     
     // Define the database name to use
     private static final String DB_NAME = "myDatabase";
