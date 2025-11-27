@@ -10,40 +10,42 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar">
-        <a href="index.jsp" class="logo">🏋️</a>
-        <div class="search-container">
-            <form action="search.jsp" method="get">
-                <input type="text" name="q" class="search-input" placeholder="검색...">
-            </form>
+   <nav class="navbar">
+    <a href="index.jsp" class="logo">🏋️</a>
+    <div class="search-container">
+        <form action="search.jsp" method="get">
+            <input type="text" name="q" class="search-input" placeholder="검색...">
+        </form>
+    </div>
+    <div class="nav-right">
+        <div class="lang-selector">
+            <input type="radio" id="lang-en" name="language" class="lang-radio" checked>
+            <label for="lang-en" class="lang-label">EN</label>
+            /
+            <input type="radio" id="lang-kr" name="language" class="lang-radio">
+            <label for="lang-kr" class="lang-label">KR</label>
         </div>
-        <div class="nav-right">
-            <div class="lang-selector">
-                <input type="radio" id="lang-en" name="language" class="lang-radio" checked>
-                <label for="lang-en" class="lang-label">EN</label>
-                /
-                <input type="radio" id="lang-kr" name="language" class="lang-radio">
-                <label for="lang-kr" class="lang-label">KR</label>
-            </div>
-            <a href="store.jsp" class="nav-button">store</a>
-            <a href="exercises.jsp" class="nav-button">운동</a>
 
-            <c:choose>
-                <c:when test="${not empty sessionScope.user}">
-                    <!-- 로그인 상태 -->
-                    <c:if test="${sessionScope.user.admin}">
-                        <a href="${pageContext.request.contextPath}/admin/users" class="nav-button">회원관리</a>
-                    </c:if>
-                    <a href="${pageContext.request.contextPath}/mypage" class="nav-button">마이페이지</a>
-                    <span class="nav-button" style="color: white;">${sessionScope.user.name}님</span>
-                    <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">로그아웃</a>
-                </c:when>
-                <c:otherwise>
-                    <!-- 비로그인 상태 -->
-                    <a href="${pageContext.request.contextPath}/register" class="nav-button">회원가입</a>
-                    <a href="${pageContext.request.contextPath}/login" class="nav-button login">로그인</a>
-                </c:otherwise>
-            </c:choose>
-        </div>
-    </nav>
+        <a href="store.jsp" class="nav-button">store</a>
+        <a href="exercises.jsp" class="nav-button">운동</a>
+
+        <!-- 고객센터 추가 -->
+        <a href="customerService.jsp" class="nav-button">고객센터</a>
+
+        <c:choose>
+            <c:when test="${not empty sessionScope.user}">
+                <c:if test="${sessionScope.user.admin}">
+                    <a href="${pageContext.request.contextPath}/admin/users" class="nav-button">회원관리</a>
+                </c:if>
+                <a href="${pageContext.request.contextPath}/mypage" class="nav-button">마이페이지</a>
+                <span class="nav-button" style="color: white;">${sessionScope.user.name}님</span>
+                <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">로그아웃</a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/register" class="nav-button">회원가입</a>
+                <a href="${pageContext.request.contextPath}/login" class="nav-button login">로그인</a>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</nav>
 
