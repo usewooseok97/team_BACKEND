@@ -26,6 +26,7 @@
                 <label for="lang-kr" class="lang-label">KR</label>
             </div>
             <a href="store.jsp" class="nav-button">store</a>
+            <a href="exercises.jsp" class="nav-button">운동</a>
 
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">

@@ -5,35 +5,40 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 public class MongoConn {
-    // Define the connection string (localhost and default port 27017)
-    private static final String CONNECTION_STRING = "mongodb://localhost:27017";
-    
-    // Define the database name to use
-    private static final String DB_NAME = "myDatabase";
-    
+    private static final String MONGO_USERNAME = "admin";
+    private static final String MONGO_PASSWORD = "admin";
+    private static final String MONGO_HOST = "localhost";
+    private static final String MONGO_PORT = "27017";
+    private static final String DB_NAME = "workout_db";
+
+    private static final String CONNECTION_STRING = String.format(
+        "mongodb://%s:%s@%s:%s/%s?authSource=admin",
+        MONGO_USERNAME, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT, DB_NAME
+    );
+
     private static MongoClient mongoClient = null;
 
-    // Static block to initialize the client when the class is loaded
     static {
         try {
-            // Create a new MongoClient instance
             mongoClient = MongoClients.create(CONNECTION_STRING);
-            // Log success message (optional)
-            System.out.println("MongoDB Connected Successfully!");
+            System.out.println("MongoDB Connected Successfully to " + DB_NAME);
         } catch (Exception e) {
+            System.err.println("MongoDB Connection Failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // Method to get the MongoDatabase instance
     public static MongoDatabase getDatabase() {
+        if (mongoClient == null) {
+            throw new IllegalStateException("MongoDB client is not initialized");
+        }
         return mongoClient.getDatabase(DB_NAME);
     }
-    
-    // Method to close the connection (usually called when the app shuts down)
+
     public static void close() {
         if (mongoClient != null) {
             mongoClient.close();
+            System.out.println("MongoDB Connection Closed");
         }
     }
 }

@@ -1,0 +1,230 @@
+package dao;
+
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.*;
+import dto.ExerciseDTO;
+import mongoutil.MongoConn;
+import org.bson.*;
+import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExerciseDAO {
+    private static ExerciseDAO instance = new ExerciseDAO();
+    private MongoCollection<Document> collection;
+
+    private ExerciseDAO() {
+        try {
+            MongoDatabase database = MongoConn.getDatabase();
+            collection = database.getCollection("exercises");
+            System.out.println("ExerciseDAO initialized successfully");
+        } catch (Exception e) {
+            System.err.println("ExerciseDAO initialization failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static ExerciseDAO getInstance() {
+        return instance;
+    }
+
+    public boolean insert(ExerciseDTO exercise) {
+        try {
+            Document doc = new Document()
+                    .append("id", exercise.getId())
+                    .append("name", exercise.getName())
+                    .append("bodyPart", exercise.getBodyPart())
+                    .append("target", exercise.getTarget())
+                    .append("equipment", exercise.getEquipment())
+                    .append("secondaryMuscles", exercise.getSecondaryMuscles())
+                    .append("instructions", exercise.getInstructions())
+                    .append("description", exercise.getDescription())
+                    .append("difficulty", exercise.getDifficulty())
+                    .append("category", exercise.getCategory());
+
+            collection.insertOne(doc);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error inserting exercise: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean insertMany(List<ExerciseDTO> exercises) {
+        try {
+            List<Document> documents = new ArrayList<>();
+            for (ExerciseDTO exercise : exercises) {
+                Document doc = new Document()
+                        .append("id", exercise.getId())
+                        .append("name", exercise.getName())
+                        .append("bodyPart", exercise.getBodyPart())
+                        .append("target", exercise.getTarget())
+                        .append("equipment", exercise.getEquipment())
+                        .append("secondaryMuscles", exercise.getSecondaryMuscles())
+                        .append("instructions", exercise.getInstructions())
+                        .append("description", exercise.getDescription())
+                        .append("difficulty", exercise.getDifficulty())
+                        .append("category", exercise.getCategory());
+                documents.add(doc);
+            }
+            collection.insertMany(documents);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error inserting exercises: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ExerciseDTO findById(String id) {
+        try {
+            Document doc = collection.find(Filters.eq("id", id)).first();
+            return documentToDTO(doc);
+        } catch (Exception e) {
+            System.err.println("Error finding exercise by id: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<ExerciseDTO> findAll() {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            for (Document doc : collection.find()) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding all exercises: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
+    public List<ExerciseDTO> findByTarget(String target) {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            for (Document doc : collection.find(Filters.eq("target", target))) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding exercises by target: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
+    public List<ExerciseDTO> findByBodyPart(String bodyPart) {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            for (Document doc : collection.find(Filters.eq("bodyPart", bodyPart))) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding exercises by bodyPart: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
+    public List<ExerciseDTO> findByEquipment(String equipment) {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            for (Document doc : collection.find(Filters.eq("equipment", equipment))) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding exercises by equipment: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
+    public boolean update(ExerciseDTO exercise) {
+        try {
+            Document doc = new Document()
+                    .append("name", exercise.getName())
+                    .append("bodyPart", exercise.getBodyPart())
+                    .append("target", exercise.getTarget())
+                    .append("equipment", exercise.getEquipment())
+                    .append("secondaryMuscles", exercise.getSecondaryMuscles())
+                    .append("instructions", exercise.getInstructions())
+                    .append("description", exercise.getDescription())
+                    .append("difficulty", exercise.getDifficulty())
+                    .append("category", exercise.getCategory());
+
+            collection.updateOne(Filters.eq("id", exercise.getId()), new Document("$set", doc));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating exercise: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean delete(String id) {
+        try {
+            collection.deleteOne(Filters.eq("id", id));
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting exercise: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public long count() {
+        try {
+            return collection.countDocuments();
+        } catch (Exception e) {
+            System.err.println("Error counting exercises: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public boolean deleteAll() {
+        try {
+            collection.deleteMany(new Document());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting all exercises: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private ExerciseDTO documentToDTO(Document doc) {
+        if (doc == null) {
+            return null;
+        }
+
+        ExerciseDTO exercise = new ExerciseDTO();
+        exercise.setId(doc.getString("id"));
+        exercise.setName(doc.getString("name"));
+        exercise.setBodyPart(doc.getString("bodyPart"));
+        exercise.setTarget(doc.getString("target"));
+        exercise.setEquipment(doc.getString("equipment"));
+        exercise.setSecondaryMuscles((List<String>) doc.get("secondaryMuscles"));
+        exercise.setInstructions((List<String>) doc.get("instructions"));
+        exercise.setDescription(doc.getString("description"));
+        exercise.setDifficulty(doc.getString("difficulty"));
+        exercise.setCategory(doc.getString("category"));
+
+        return exercise;
+    }
+}
