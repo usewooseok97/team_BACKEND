@@ -16,9 +16,21 @@ public class ExerciseService {
     private static ExerciseService instance = new ExerciseService();
     private ExerciseDAO exerciseDAO;
 
-    private static final String API_KEY = "1a077de20bmshdbdbe3f303aa16dp143e78jsn02e222a21c6a";
-    private static final String API_HOST = "exercisedb.p.rapidapi.com";
-    private static final String BASE_URL = "https://exercisedb.p.rapidapi.com";
+    // 환경변수에서 읽어오거나, 없으면 기본값 사용
+    private static final String API_KEY = getEnvOrDefault("RAPIDAPI_KEY",
+        "1a077de20bmshdbdbe3f303aa16dp143e78jsn02e222a21c6a");
+    private static final String API_HOST = getEnvOrDefault("RAPIDAPI_HOST",
+        "exercisedb.p.rapidapi.com");
+    private static final String BASE_URL = getEnvOrDefault("EXERCISE_API_BASE_URL",
+        "https://exercisedb.p.rapidapi.com");
+
+    /**
+     * 환경변수 값을 가져오되, 없으면 기본값을 반환
+     */
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
     private ExerciseService() {
         exerciseDAO = ExerciseDAO.getInstance();

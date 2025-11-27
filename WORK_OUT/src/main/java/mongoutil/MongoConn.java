@@ -5,24 +5,23 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 public class MongoConn {
-    // private static final String MONGO_USERNAME = "admin";
-    // private static final String MONGO_PASSWORD = "admin";
-    // private static final String MONGO_HOST = "localhost";
-    // private static final String MONGO_PORT = "27017";
-    // private static final String DB_NAME = "workout_db";
 
-    // private static final String CONNECTION_STRING = String.format(
-    //     "mongodb://%s:%s@%s:%s/%s?authSource=admin",
-    //     MONGO_USERNAME, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT, DB_NAME
-    // );
+    // 환경변수에서 읽어오거나, 없으면 기본값 사용
+    private static final String CONNECTION_STRING = getEnvOrDefault("MONGO_CONNECTION_STRING",
+        "mongodb+srv://admin:admin@workoutcluster.snlejtj.mongodb.net/");
 
-    // Define the connection string (localhost and default port 27017)
-    private static final String CONNECTION_STRING = "mongodb+srv://yoonjae:yoonjae@workoutcluster.snlejtj.mongodb.net/";
-    
     // Define the database name to use
-    private static final String DB_NAME = "WORKOUT_DB";
-    
+    private static final String DB_NAME = getEnvOrDefault("MONGO_DB_NAME", "WORKOUT_DB");
+
     private static MongoClient mongoClient = null;
+
+    /**
+     * 환경변수 값을 가져오되, 없으면 기본값을 반환
+     */
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
     static {
         try {
