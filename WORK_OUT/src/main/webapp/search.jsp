@@ -12,11 +12,11 @@
 <%@ include file="header.jsp" %>
 <body>
     <div class="coming-soon">
-        <h1>🔍 검색</h1>
+        <h1>🔍 SEARCH</h1>
         <c:if test="${not empty param.q}">
             <p><span class="search-query">"${param.q}"</span> 에 대한 검색 결과</p>
         </c:if>
-        <p>검색 기능은 준비 중입니다.</p>
+        <p>SEARCH IN PREPARATION. PLEASE STAY TUNED.</p>
     </div>
     <%@ include file="footer.jsp" %>
 </body>

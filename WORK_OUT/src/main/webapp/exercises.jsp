@@ -167,11 +167,11 @@
 
 <div class="exercise-container">
     <div class="exercise-header">
-        <h1>운동 목록</h1>
+        <h1>EXERCISE LIST</h1>
         <form action="${pageContext.request.contextPath}/exercises" method="post" style="display: inline;">
             <input type="hidden" name="action" value="sync">
-            <input type="number" name="limit" placeholder="개수 (기본 50)" style="width: 150px; padding: 10px; margin-right: 10px; border: 1px solid #ddd; border-radius: 4px;">
-            <button type="submit" class="sync-button">API에서 데이터 동기화</button>
+            <input type="number" name="limit" placeholder="NUMBERS" style="width: 150px; padding: 10px; margin-right: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            <button type="submit" class="sync-button">SYNCHRONIZE API DATA</button>
         </form>
     </div>
 
@@ -187,13 +187,13 @@
         <form action="${pageContext.request.contextPath}/exercises" method="get" class="filter-form">
             <input type="hidden" name="action" value="filter">
             <select name="filterType">
-                <option value="target">타겟 근육</option>
-                <option value="bodyPart">신체 부위</option>
-                <option value="equipment">장비</option>
+                <option value="target">TARGET MUSCLES</option>
+                <option value="bodyPart">BODY PARTS</option>
+                <option value="equipment">EQUIPMENTS</option>
             </select>
-            <input type="text" name="filterValue" placeholder="검색어 입력" required>
-            <button type="submit">필터</button>
-            <a href="${pageContext.request.contextPath}/exercises" style="margin-left: 10px; color: #666;">전체보기</a>
+            <input type="text" name="filterValue" placeholder="Search.." required>
+            <button type="submit">FILTER</button>
+            <a href="${pageContext.request.contextPath}/exercises" style="margin-left: 10px; color: #666;">SEE ALL</a>
         </form>
     </div>
 
@@ -212,7 +212,7 @@
                         </div>
                         <c:if test="${not empty exercise.difficulty}">
                             <div class="exercise-info">
-                                <strong>난이도:</strong> ${exercise.difficulty}
+                                <strong>DIFFICULTY:</strong> ${exercise.difficulty}
                             </div>
                         </c:if>
                         <a href="${pageContext.request.contextPath}/exercises?action=detail&id=${exercise.id}" class="detail-button">
@@ -224,8 +224,8 @@
         </c:when>
         <c:otherwise>
             <div class="no-exercises">
-                <h2>운동 데이터가 없습니다</h2>
-                <p>위의 "API에서 데이터 동기화" 버튼을 클릭하여 운동 데이터를 가져오세요.</p>
+                <h2>THERE ARE NO WORK-OUT DATA AVAILABLE.</h2>
+                <p>PLEASE SYNCHRONIZE API DATA ABOVE.</p>
             </div>
         </c:otherwise>
     </c:choose>

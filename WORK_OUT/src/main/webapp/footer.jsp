@@ -9,7 +9,7 @@
         </div>
 
         <div class="footer-copyright">
-            © 2025 동양미래대학교 백엔드실습 2조 강우석 이준영 조윤재. All rights reserved.
+            © 2025 DONGYANG MIRAE UNIVERSITY BACKEND TEAM-02 WOOSEOK KANG JOONYEONG LEE YOONJAE CHO. ALL RIGHTS RESERVED.
         </div>
     </footer>
 </body>

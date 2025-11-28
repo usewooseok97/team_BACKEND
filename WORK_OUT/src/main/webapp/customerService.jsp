@@ -26,41 +26,41 @@
 
 <div class="cs-container">
     <div class="cs-header">
-        <h1>고객센터</h1>
-        <p>FAQ 혹은 문의하기를 사용해서 질문을 남겨주세요.</p>
+        <h1>CUSTOMER CENTRE</h1>
+        <p>PLEASE READ THE FAQs BELOW OR CONTACT US USING THE FORM.</p>
     </div>
 
     <!-- FAQ Section -->
     <div class="cs-section">
         <h2>FAQ</h2>
         <div class="faq-item">
-            <div class="faq-question">회원가입은 어떻게 하나요?</div>
-            <div class="faq-answer">상단 메뉴에서 회원가입을 클릭하여 정보를 입력하면 가입 가능합니다.</div>
+            <div class="faq-question">HOW DO I SIGN UP?</div>
+            <div class="faq-answer">YOU CAN SIGN UP BY CLICKING 'SIGNUP' BUTTON ABOVE.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">비밀번호를 잊어버렸어요.</div>
-            <div class="faq-answer">로그인 페이지에서 비밀번호 찾기를 통해 재설정할 수 있습니다.</div>
+            <div class="faq-question">I FORGOT MY PASSWORD.</div>
+            <div class="faq-answer">YOU CAN FIND YOUR PASSWORD BY CLICKING 'FIND PASSWORD' BUTTON IN LOGIN PAGE.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">운동 프로그램은 무료인가요?</div>
-            <div class="faq-answer">기본 운동 프로그램은 무료로 제공되며, 일부 프리미엄 기능은 유료입니다.</div>
+            <div class="faq-question">ARE THE EXERCISE PROGRAMS FREE OF CHARGE?</div>
+            <div class="faq-answer">BASIC WORK-OUT PROGRAMS ARE FREE. HOWEVER, THERE ARE SOME EXCEPTIONAL PREMIUM PROGRAMS THAT YOU WOULD NEED TO PAY.</div>
         </div>
     </div>
 
     <!-- Inquiry Form Section (EmailJS 적용) -->
     <div class="cs-section">
-        <h2>문의하기</h2>
+        <h2>CONTACT US</h2>
         <form id="inquiryForm" class="inquiry-form">
-            <label for="name">이름</label>
+            <label for="name">NAME</label>
             <input type="text" id="name" name="name" required>
 
-            <label for="email">이메일</label>
+            <label for="email">EMAIL</label>
             <input type="email" id="email" name="email" required>
 
-            <label for="message">문의 내용</label>
+            <label for="message">MESSAGE</label>
             <textarea id="message" name="message" rows="5" required></textarea>
 
-            <button type="submit">문의 보내기</button>
+            <button type="submit">SEND</button>
         </form>
     </div>
 </div>
