@@ -12,10 +12,10 @@
 <body>
 
     <div class="form-container">
-        <h2 class="form-title">로그인</h2>
+        <h2 class="form-title">LogIn</h2>
 
         <c:if test="${param.registered == 'true'}">
-            <div class="success-message">회원가입이 완료되었습니다. 로그인해주세요.</div>
+            <div class="success-message">YOU ARE SIGNED UP! PLEASE LOGIN.</div>
         </c:if>
 
         <c:if test="${not empty error}">
@@ -24,23 +24,27 @@
 
         <form action="login" method="post">
             <div class="form-group">
-                <label class="form-label" for="username">아이디</label>
+                <label class="form-label" for="username">ID<span class="required">*</span></label>
                 <input type="text" id="username" name="username" class="form-input"
-                       placeholder="아이디를 입력하세요" required>
+                       placeholder="ENTER YOUR ID" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">비밀번호</label>
+                <label class="form-label" for="password">PASSWORD<span class="required">*</span></label>
                 <input type="password" id="password" name="password" class="form-input"
-                       placeholder="비밀번호를 입력하세요" required>
+                       placeholder="ENTER YOUR PASSWORD" required>
             </div>
 
-            <button type="submit" class="form-button">로그인</button>
+            <button type="submit" class="form-button">LOGIN</button>
         </form>
 
         <div class="form-link">
-            계정이 없으신가요? <a href="register">회원가입</a>
+            YOU DON'T HAVE AN ACCOUNT YET? <a href="register">SIGNUP</a>
         </div>
+         <div class="form-link">
+    FORGOT YOUR PASSWORD? <a href="findpassword.jsp">FIND PASSWORD</a>
+</div>
+
 
         <!-- 테스트용 계정 정보 -->
         <div class="test-accounts">

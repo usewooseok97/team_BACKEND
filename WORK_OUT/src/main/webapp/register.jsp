@@ -12,7 +12,7 @@
 <%@ include file="header.jsp" %>
 
 <div class="form-container">
-    <h2 class="form-title">회원가입</h2>
+    <h2 class="form-title">SignUp</h2>
 
     <c:if test="${not empty error}">
         <div class="error-message">${error}</div>
@@ -20,74 +20,74 @@
 
     <form action="register" method="post">
         <div class="form-group">
-            <label class="form-label" for="username">아이디 <span class="required">*</span></label>
-            <input type="text" id="username" name="username" class="form-input" placeholder="아이디를 입력하세요" required>
+            <label class="form-label" for="username">ID <span class="required">*</span></label>
+            <input type="text" id="username" name="username" class="form-input" placeholder="Enter Your ID" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="password">비밀번호 <span class="required">*</span></label>
-            <input type="password" id="password" name="password" class="form-input" placeholder="비밀번호를 입력하세요" required>
+            <label class="form-label" for="password">PASSWORD <span class="required">*</span></label>
+            <input type="password" id="password" name="password" class="form-input" placeholder="Enter Your Password" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="passwordConfirm">비밀번호 확인 <span class="required">*</span></label>
-            <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-input" placeholder="비밀번호를 다시 입력하세요" required>
+            <label class="form-label" for="passwordConfirm">PASSWORD CONFIRMATION <span class="required">*</span></label>
+            <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-input" placeholder="Enter Your Password Again" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="name">이름 <span class="required">*</span></label>
-            <input type="text" id="name" name="name" class="form-input" placeholder="이름을 입력하세요" required>
+            <label class="form-label" for="name">NAME <span class="required">*</span></label>
+            <input type="text" id="name" name="name" class="form-input" placeholder="Enter Your Name" required>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="email">이메일</label>
-            <input type="email" id="email" name="email" class="form-input" placeholder="이메일을 입력하세요">
+            <label class="form-label" for="email">EMAIL<span class="required">*</span></label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="Enter Your Email">
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="phone">전화번호</label>
-            <input type="tel" id="phone" name="phone" class="form-input" placeholder="예: 010-1234-5678">
+            <label class="form-label" for="phone">PHONE</label>
+            <input type="tel" id="phone" name="phone" class="form-input" placeholder="Ex)+1(506)-223-4413">
         </div>
 
         <div class="form-group">
-            <label class="form-label">성별</label>
+            <label class="form-label">GENDER</label>
             <select name="gender" class="form-input">
-                <option value="">선택</option>
-                <option value="male">남성</option>
-                <option value="female">여성</option>
+                <option value="">SELECT</option>
+                <option value="male">MALE</option>
+                <option value="female">FEMALE</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="birthdate">생년월일</label>
+            <label class="form-label" for="birthdate">DATE OF BIRTH</label>
             <input type="date" id="birthdate" name="birthdate" class="form-input">
         </div>
 
         <div class="form-group">
-            <label class="form-label">운동 경험</label>
+            <label class="form-label">WORKOUT EXPERIENCE</label>
             <select name="experience" class="form-input">
-                <option value="">선택</option>
-                <option value="beginner">초급</option>
-                <option value="intermediate">중급</option>
-                <option value="advanced">고급</option>
+                <option value="">SELECT</option>
+                <option value="beginner">BEGINNER</option>
+                <option value="intermediate">INTERMEDIATE</option>
+                <option value="advanced">ADVANCED</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label class="form-label">관심 부위</label>
+            <label class="form-label">INTERESTED</label>
             <div class="checkbox-group">
-                <label><input type="checkbox" name="interest" value="upper"> 상체</label>
-                <label><input type="checkbox" name="interest" value="lower"> 하체</label>
-                <label><input type="checkbox" name="interest" value="core"> 코어</label>
-                <label><input type="checkbox" name="interest" value="fullbody"> 전신</label>
+                <label><input type="checkbox" name="interest" value="upper"> UPPER</label>
+                <label><input type="checkbox" name="interest" value="lower"> LOWER</label>
+                <label><input type="checkbox" name="interest" value="core"> CORE</label>
+                <label><input type="checkbox" name="interest" value="fullbody"> FULL BODY</label>
             </div>
         </div>
 
-        <button type="submit" class="form-button">회원가입</button>
+        <button type="submit" class="form-button">SIGNUP</button>
     </form>
 
     <div class="form-link">
-        이미 계정이 있으신가요? <a href="login">로그인</a>
+        DO YOU ALREADY HAVE AN ACCOUNT? <a href="login">LOGIN</a>
     </div>
 </div>
 

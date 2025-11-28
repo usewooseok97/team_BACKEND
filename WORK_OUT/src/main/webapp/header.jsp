@@ -14,7 +14,7 @@
     <a href="index.jsp" class="logo">🏋️</a>
     <div class="search-container">
         <form action="search.jsp" method="get">
-            <input type="text" name="q" class="search-input" placeholder="검색...">
+            <input type="text" name="q" class="search-input" placeholder="Search..">
         </form>
     </div>
     <div class="nav-right">
@@ -26,11 +26,11 @@
             <label for="lang-kr" class="lang-label">KR</label>
         </div>
 
-        <a href="store.jsp" class="nav-button">store</a>
-        <a href="exercises.jsp" class="nav-button">운동</a>
+        <a href="store.jsp" class="nav-button">Store</a>
+        <a href="exercises.jsp" class="nav-button">Exercises</a>
 
         <!-- 고객센터 추가 -->
-        <a href="customerService.jsp" class="nav-button">고객센터</a>
+        <a href="customerService.jsp" class="nav-button">Customer Service</a>
 
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
@@ -42,8 +42,8 @@
                 <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">로그아웃</a>
             </c:when>
             <c:otherwise>
-                <a href="${pageContext.request.contextPath}/register" class="nav-button">회원가입</a>
-                <a href="${pageContext.request.contextPath}/login" class="nav-button login">로그인</a>
+                <a href="${pageContext.request.contextPath}/register" class="nav-button">SIGNUP</a>
+                <a href="${pageContext.request.contextPath}/login" class="nav-button login">LOGIN</a>
             </c:otherwise>
         </c:choose>
     </div>

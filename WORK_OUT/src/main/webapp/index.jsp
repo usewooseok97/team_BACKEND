@@ -11,7 +11,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
   	<h1 class="hero-title">WORK<br />OUT</h1>
 	<div class="hero-search">
 	  <form action="search.jsp" method="get">
-	    <input type="text" name="q" placeholder="search..." />
+	    <input type="text" name="q" placeholder="ex) biceps, triceps, chest" />
 	    <!-- 돋보기를 버튼 안으로 이동 -->
 	    <button type="submit">🔍</button>
 	  </form>
