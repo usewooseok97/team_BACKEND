@@ -173,6 +173,26 @@
         border-radius: 4px;
         color: #856404;
     }
+
+    .exercise-image-section {
+        margin-bottom: 30px;
+    }
+
+    .exercise-detail-image-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: #f5f5f5;
+    }
+
+    .exercise-detail-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
 </style>
 
 <div class="detail-container">
@@ -192,6 +212,17 @@
                     </c:if>
                 </div>
             </div>
+
+            <c:if test="${not empty exercise.gifUrl}">
+                <div class="exercise-image-section">
+                    <div class="exercise-detail-image-container">
+                        <img src="${exercise.gifUrl}"
+                             alt="${exercise.name}"
+                             class="exercise-detail-image"
+                             onerror="this.parentElement.parentElement.style.display='none'">
+                    </div>
+                </div>
+            </c:if>
 
             <div class="detail-section">
                 <div class="info-grid">

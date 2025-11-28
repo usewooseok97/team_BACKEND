@@ -13,7 +13,8 @@
    <nav class="navbar">
     <a href="index.jsp" class="logo">🏋️</a>
     <div class="search-container">
-        <form action="search.jsp" method="get">
+        <form action="${pageContext.request.contextPath}/exercises" method="get">
+            <input type="hidden" name="action" value="search">
             <input type="text" name="q" class="search-input" placeholder="Search..">
         </form>
     </div>
@@ -27,11 +28,7 @@
         </div>
 
         <a href="store.jsp" class="nav-button">Store</a>
-        <a href="exercises.jsp" class="nav-button">Exercises</a>
-
-        <!-- 고객센터 추가 -->
-        <a href="customerService.jsp" class="nav-button">Customer Service</a>
-
+        <a href="${pageContext.request.contextPath}/exercises" class="nav-button">Exercises</a>
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
                 <c:if test="${sessionScope.user.admin}">

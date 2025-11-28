@@ -42,7 +42,8 @@ public class ExerciseDAO {
                     .append("instructions", exercise.getInstructions())
                     .append("description", exercise.getDescription())
                     .append("difficulty", exercise.getDifficulty())
-                    .append("category", exercise.getCategory());
+                    .append("category", exercise.getCategory())
+                    .append("gifUrl", exercise.getGifUrl());
 
             collection.insertOne(doc);
             return true;
@@ -67,7 +68,8 @@ public class ExerciseDAO {
                         .append("instructions", exercise.getInstructions())
                         .append("description", exercise.getDescription())
                         .append("difficulty", exercise.getDifficulty())
-                        .append("category", exercise.getCategory());
+                        .append("category", exercise.getCategory())
+                        .append("gifUrl", exercise.getGifUrl());
                 documents.add(doc);
             }
             collection.insertMany(documents);
@@ -154,6 +156,46 @@ public class ExerciseDAO {
         return exercises;
     }
 
+    public List<ExerciseDTO> findByNameContaining(String keyword) {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            // 대소문자 구분 없이 부분 검색
+            for (Document doc : collection.find(Filters.regex("name", ".*" + keyword + ".*", "i"))) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding exercises by name: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
+    public List<ExerciseDTO> findByMultipleFields(String keyword) {
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        try {
+            // name, bodyPart, target 중 하나라도 일치하면 반환 (대소문자 구분 없이)
+            org.bson.conversions.Bson filter = Filters.or(
+                Filters.regex("name", ".*" + keyword + ".*", "i"),
+                Filters.regex("bodyPart", ".*" + keyword + ".*", "i"),
+                Filters.regex("target", ".*" + keyword + ".*", "i")
+            );
+
+            for (Document doc : collection.find(filter)) {
+                ExerciseDTO exercise = documentToDTO(doc);
+                if (exercise != null) {
+                    exercises.add(exercise);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error finding exercises by multiple fields: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return exercises;
+    }
+
     public boolean update(ExerciseDTO exercise) {
         try {
             Document doc = new Document()
@@ -165,7 +207,8 @@ public class ExerciseDAO {
                     .append("instructions", exercise.getInstructions())
                     .append("description", exercise.getDescription())
                     .append("difficulty", exercise.getDifficulty())
-                    .append("category", exercise.getCategory());
+                    .append("category", exercise.getCategory())
+                    .append("gifUrl", exercise.getGifUrl());
 
             collection.updateOne(Filters.eq("id", exercise.getId()), new Document("$set", doc));
             return true;
@@ -208,6 +251,18 @@ public class ExerciseDAO {
         }
     }
 
+    public boolean updateGifUrl(String exerciseId, String gifUrl) {
+        try {
+            Document updateDoc = new Document("$set", new Document("gifUrl", gifUrl));
+            collection.updateOne(Filters.eq("id", exerciseId), updateDoc);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error updating gifUrl for exercise: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private ExerciseDTO documentToDTO(Document doc) {
         if (doc == null) {
             return null;
@@ -224,6 +279,7 @@ public class ExerciseDAO {
         exercise.setDescription(doc.getString("description"));
         exercise.setDifficulty(doc.getString("difficulty"));
         exercise.setCategory(doc.getString("category"));
+        exercise.setGifUrl(doc.getString("gifUrl"));
 
         return exercise;
     }

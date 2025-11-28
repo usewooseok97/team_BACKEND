@@ -13,13 +13,14 @@ public class ExerciseDTO {
     private String description;
     private String difficulty;
     private String category;
+    private String gifUrl;
 
     public ExerciseDTO() {
     }
 
     public ExerciseDTO(String id, String name, String bodyPart, String target, String equipment,
                        List<String> secondaryMuscles, List<String> instructions, String description,
-                       String difficulty, String category) {
+                       String difficulty, String category, String gifUrl) {
         this.id = id;
         this.name = name;
         this.bodyPart = bodyPart;
@@ -30,6 +31,7 @@ public class ExerciseDTO {
         this.description = description;
         this.difficulty = difficulty;
         this.category = category;
+        this.gifUrl = gifUrl;
     }
 
     public String getId() {
@@ -110,6 +112,14 @@ public class ExerciseDTO {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getGifUrl() {
+        return gifUrl;
+    }
+
+    public void setGifUrl(String gifUrl) {
+        this.gifUrl = gifUrl;
     }
 
     @Override

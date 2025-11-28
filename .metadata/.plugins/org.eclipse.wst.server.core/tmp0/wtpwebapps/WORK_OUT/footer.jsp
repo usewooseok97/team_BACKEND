@@ -2,16 +2,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
-            <a href="#">Privacy Policy</a> |
-            <a href="#">Terms of Service</a> |
-            <a href="#">Medical Disclaimer</a> |
-            <a href="#">Cookie Policy</a>
+            <a href="privacy.jsp">Policy</a> |
+            <a href="customerService.jsp">Customer Service</a>
         </div>
-        <div class="footer-disclaimer">
-            *Medical Disclaimer: Always consult with a qualified healthcare professional before beginning any new diet or exercise program.
-        </div>
+
         <div class="footer-copyright">
-            © 2023 2조 강우석 이준영 조윤재. All rights reserved.
+            © 2025 DONGYANG MIRAE UNIVERSITY BACKEND TEAM-02 WOOSEOK KANG JOONYEONG LEE YOONJAE CHO. ALL RIGHTS RESERVED.
         </div>
     </footer>
 </body>

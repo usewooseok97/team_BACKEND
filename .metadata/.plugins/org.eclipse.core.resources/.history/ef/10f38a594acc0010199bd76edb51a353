@@ -1,0 +1,12 @@
+@charset "UTF-8";
+        .cs-container { max-width: 900px; margin: 0 auto; padding: 30px; }
+        .cs-header { text-align: center; margin-bottom: 20px; }
+        .cs-section { margin-bottom: 40px; }
+        .cs-section h2 { margin-bottom: 10px; color: #333; }
+        .faq-item { margin-bottom: 10px; }
+        .faq-question { font-weight: bold; cursor: pointer; }
+        .faq-answer { display: none; padding-left: 10px; }
+        .faq-item.active .faq-answer { display: block; }
+        .inquiry-form label { display: block; margin: 10px 0 5px; }
+        .inquiry-form input, .inquiry-form textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        .inquiry-form button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }

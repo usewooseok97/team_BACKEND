@@ -47,6 +47,12 @@ public class ExerciseServlet extends HttpServlet {
             case "filter":
                 filterExercises(request, response);
                 break;
+            case "updateImages":
+                updateExerciseImages(request, response);
+                break;
+            case "search":
+                searchExercises(request, response);
+                break;
             default:
                 listExercises(request, response);
                 break;
@@ -189,6 +195,66 @@ public class ExerciseServlet extends HttpServlet {
             System.err.println("Error filtering exercises: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("error", "운동 필터링 중 오류가 발생했습니다.");
+            listExercises(request, response);
+        }
+    }
+
+    private void updateExerciseImages(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            System.out.println("Starting exercise images update...");
+            int updatedCount = exerciseService.updateAllExerciseImages();
+
+            if (updatedCount > 0) {
+                request.setAttribute("message",
+                    updatedCount + "개의 운동 이미지를 성공적으로 업데이트했습니다.");
+            } else {
+                request.setAttribute("message", "업데이트할 이미지가 없습니다. 모든 운동에 이미 이미지가 있습니다.");
+            }
+
+            System.out.println("Exercise images update completed. Updated: " + updatedCount);
+        } catch (Exception e) {
+            System.err.println("Error updating exercise images: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "운동 이미지 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        listExercises(request, response);
+    }
+
+    private void searchExercises(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String query = request.getParameter("q");
+
+        if (query == null || query.trim().isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/exercises");
+            return;
+        }
+
+        try {
+            // name, bodyPart, target 모두 검색
+            List<ExerciseDTO> results = exerciseService.searchByMultipleFields(query.trim());
+
+            if (results.isEmpty()) {
+                request.setAttribute("searchQuery", query);
+                request.setAttribute("error", "\"" + query + "\"에 대한 검색 결과가 없습니다.");
+                request.getRequestDispatcher("/exercises.jsp").forward(request, response);
+            } else if (results.size() == 1) {
+                request.setAttribute("exercise", results.get(0));
+                request.setAttribute("searchQuery", query);
+                request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
+            } else {
+                request.setAttribute("exercises", results);
+                request.setAttribute("exerciseCount", results.size());
+                request.setAttribute("message", "\"" + query + "\"에 대한 " + results.size() + "개의 검색 결과");
+                request.getRequestDispatcher("/exercises.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            System.err.println("Error searching exercises: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "검색 중 오류가 발생했습니다.");
             listExercises(request, response);
         }
     }

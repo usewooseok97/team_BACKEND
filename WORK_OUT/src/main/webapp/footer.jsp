@@ -2,10 +2,8 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
-            <a href="privacy.jsp">Privacy Policy</a> |
-            <a href="terms.jsp">Terms of Service</a> |
-            <a href="medical-disclaimer.jsp">Medical Disclaimer</a> |
-            <a href="cookie-policy.jsp">Cookie Policy</a>
+            <a href="privacy.jsp">Policy</a> |
+            <a href="customerService.jsp">Customer Service</a>
         </div>
 
         <div class="footer-copyright">

@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class ExerciseService {
@@ -17,12 +18,9 @@ public class ExerciseService {
     private ExerciseDAO exerciseDAO;
 
     // 환경변수에서 읽어오거나, 없으면 기본값 사용
-    private static final String API_KEY = getEnvOrDefault("RAPIDAPI_KEY",
-        "1a077de20bmshdbdbe3f303aa16dp143e78jsn02e222a21c6a");
-    private static final String API_HOST = getEnvOrDefault("RAPIDAPI_HOST",
-        "exercisedb.p.rapidapi.com");
-    private static final String BASE_URL = getEnvOrDefault("EXERCISE_API_BASE_URL",
-        "https://exercisedb.p.rapidapi.com");
+    private static final String API_KEY = getEnvOrDefault("RAPIDAPI_KEY","");
+    private static final String API_HOST = getEnvOrDefault("RAPIDAPI_HOST","");
+    private static final String BASE_URL = getEnvOrDefault("EXERCISE_API_BASE_URL","");
 
     /**
      * 환경변수 값을 가져오되, 없으면 기본값을 반환
@@ -175,8 +173,80 @@ public class ExerciseService {
         return exerciseDAO.findByEquipment(equipment);
     }
 
+    public List<ExerciseDTO> searchByName(String keyword) {
+        return exerciseDAO.findByNameContaining(keyword);
+    }
+
+    public List<ExerciseDTO> searchByMultipleFields(String keyword) {
+        return exerciseDAO.findByMultipleFields(keyword);
+    }
+
     public long getExerciseCount() {
         return exerciseDAO.count();
+    }
+
+    /**
+     * 이미지 API에서 이미지를 다운로드하고 Base64로 인코딩
+     */
+    private String fetchAndEncodeImage(String exerciseId, int resolution) {
+        try {
+            String imageUrl = "https://exercisedb.p.rapidapi.com/image?resolution=" + resolution + "&exerciseId=" + exerciseId;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(imageUrl))
+                    .header("x-rapidapi-key", API_KEY)
+                    .header("x-rapidapi-host", API_HOST)
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<byte[]> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+            // Base64 인코딩
+            String base64 = Base64.getEncoder().encodeToString(response.body());
+
+            // Data URI 형식으로 반환
+            return "data:image/gif;base64," + base64;
+        } catch (Exception e) {
+            System.err.println("Error fetching image for exercise " + exerciseId + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 기존 DB의 모든 운동 데이터에 gifUrl 추가/업데이트
+     * 이 메서드는 한 번만 실행하면 됨
+     */
+    public int updateAllExerciseImages() {
+        try {
+            List<ExerciseDTO> exercises = exerciseDAO.findAll();
+            int updatedCount = 0;
+
+            for (ExerciseDTO exercise : exercises) {
+                String gifUrl = exercise.getGifUrl();
+
+                // gifUrl이 없거나 비어있거나 URL 형식이면 Base64로 변환
+                if (gifUrl == null || gifUrl.isEmpty() || gifUrl.startsWith("http")) {
+                    String exerciseId = exercise.getId();
+                    if (exerciseId != null && !exerciseId.isEmpty()) {
+                        // 720 해상도로 이미지 다운로드 및 인코딩
+                        String base64Image = fetchAndEncodeImage(exerciseId, 720);
+                        if (base64Image != null) {
+                            exerciseDAO.updateGifUrl(exerciseId, base64Image);
+                            updatedCount++;
+                            System.out.println("Updated image for exercise: " + exerciseId);
+                        }
+                    }
+                }
+            }
+
+            System.out.println("Updated gifUrl for " + updatedCount + " exercises");
+            return updatedCount;
+        } catch (Exception e) {
+            System.err.println("Error updating exercise images: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     private ExerciseDTO jsonToDTO(JSONObject json) {
@@ -209,6 +279,17 @@ public class ExerciseService {
         exercise.setDescription(json.optString("description", ""));
         exercise.setDifficulty(json.optString("difficulty", ""));
         exercise.setCategory(json.optString("category", ""));
+
+        // gifUrl 처리: API에서 제공하지 않으면 이미지 다운로드 및 Base64 인코딩
+        String gifUrl = json.optString("gifUrl", "");
+        if (gifUrl.isEmpty()) {
+            String exerciseId = exercise.getId();
+            if (!exerciseId.isEmpty()) {
+                // 720 해상도로 이미지 다운로드 및 Base64 인코딩
+                gifUrl = fetchAndEncodeImage(exerciseId, 720);
+            }
+        }
+        exercise.setGifUrl(gifUrl);
 
         return exercise;
     }

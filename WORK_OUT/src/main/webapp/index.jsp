@@ -10,8 +10,9 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 <section class="hero">
   	<h1 class="hero-title">WORK<br />OUT</h1>
 	<div class="hero-search">
-	  <form action="search.jsp" method="get">
-	    <input type="text" name="q" placeholder="ex) biceps, triceps, chest" />
+	  <form action="${pageContext.request.contextPath}/exercises" method="get">
+	    <input type="hidden" name="action" value="search">
+	    <input type="text" name="q" placeholder="ex&#41; biceps, triceps, chest" />
 	    <!-- 돋보기를 버튼 안으로 이동 -->
 	    <button type="submit">🔍</button>
 	  </form>
@@ -43,7 +44,8 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     </div>
 
 	<div class="svg-container">
-	    <form id="muscleForm" action="search.jsp" method="get">
+	    <form id="muscleForm" action="${pageContext.request.contextPath}/exercises" method="get">
+	        <input type="hidden" name="action" value="search">
 	        <input type="hidden" id="hidden-q" name="q" value=""> 
 	        <object
 	          id="svg-front"
@@ -264,14 +266,16 @@ window.addEventListener('load', function() {
 
                 // 클릭 이벤트 연결
                 muscle.addEventListener('click', function() {
-                    // 1. 클릭한 근육의 한글 이름 가져오기 (data-value-k="승모")
-                    // 만약 영문명으로 검색하고 싶다면 dataset.valueE 사용
-                    const muscleName = this.dataset.valueK; 
+                    // 1. 언어 선택 확인 (EN/KR)
+                    const isEnglish = document.getElementById('lang-en').checked;
 
-                    // 2. input name="q" 에 값 넣기
+                    // 2. 선택된 언어에 따라 영문 또는 한글 이름 사용
+                    const muscleName = isEnglish ? this.dataset.valueE : this.dataset.valueK;
+
+                    // 3. input name="q" 에 값 넣기
                     hiddenInput.value = muscleName;
 
-                    // 3. 폼 강제 제출 (search.jsp?q=승모 형태로 이동됨)
+                    // 4. 폼 강제 제출
                     form.submit();
                 });
             });

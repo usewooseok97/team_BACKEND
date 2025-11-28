@@ -17,7 +17,7 @@
 
     <div class="coming-soon">
         <h1>🏪 STORE</h1>
-        <p>스토어 페이지는 준비 중입니다.</p>
+        <p>STORE PAGE IN PREPARATION. PLEASE STAY TUNED.</p>
     </div>
     <%@ include file="footer.jsp" %>
 </body>
