@@ -27,7 +27,7 @@
 <div class="cs-container">
     <div class="cs-header">
         <h1>고객센터</h1>
-        <p>질문이 있으신가요? FAQ를 확인하거나 문의를 남겨주세요.</p>
+        <p>FAQ 혹은 문의하기를 사용해서 질문을 남겨주세요.</p>
     </div>
 
     <!-- FAQ Section -->
