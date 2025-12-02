@@ -4,6 +4,7 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="Fetching fresh products from API for query"/>
 			<item value="insert"/>
 			<item value="container"/>
 			<item value="error"/>

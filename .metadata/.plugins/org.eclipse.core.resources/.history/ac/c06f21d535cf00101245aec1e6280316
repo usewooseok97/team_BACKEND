@@ -1,0 +1,267 @@
+package service;
+
+import dao.VideoCacheDAO;
+import dto.YouTubeVideoDTO;
+import dto.VideoCacheDTO;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class YouTubeVideoService {
+    private static YouTubeVideoService instance = new YouTubeVideoService();
+    private VideoCacheDAO videoCacheDAO;
+
+    // Environment variables
+    private static final String API_KEY = getEnvOrDefault("RAPIDAPI_KEY", "");
+    private static final String API_HOST = getEnvOrDefault("YOUTUBE_RAPIDAPI_HOST", "");
+    private static final String BASE_URL = getEnvOrDefault("YOUTUBE_API_BASE_URL", "https://youtube138.p.rapidapi.com/search/");
+
+    /**
+     * Get environment variable with fallback to default
+     */
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
+
+    private YouTubeVideoService() {
+        videoCacheDAO = VideoCacheDAO.getInstance();
+    }
+
+    public static YouTubeVideoService getInstance() {
+        return instance;
+    }
+
+    /**
+     * Get videos with caching
+     * - First check cache (if < 24h old, return cached)
+     * - Otherwise fetch from API and cache result
+     */
+    public List<YouTubeVideoDTO> getVideos(String query, int limit) {
+        try {
+            // 1. Check cache
+            VideoCacheDTO cache = videoCacheDAO.findBySearchQuery(query);
+
+            // 2. If cache exists and not expired (< 24 hours), return cached videos
+            if (cache != null && !isCacheExpired(cache, 24)) {
+                System.out.println("Returning cached videos for query: " + query);
+                return cache.getVideos();
+            }
+
+            // 3. Cache expired or doesn't exist - fetch from API
+            System.out.println("Fetching fresh videos from API for query: " + query);
+            List<YouTubeVideoDTO> videos = fetchFromAPI(query, limit);
+
+            // 4. Save to cache
+            if (!videos.isEmpty()) {
+                saveToCache(query, videos);
+            }
+
+            // 5. Return videos
+            return videos;
+        } catch (Exception e) {
+            System.err.println("Error getting videos: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Fetch videos from YouTube API
+     */
+    private List<YouTubeVideoDTO> fetchFromAPI(String query, int limit) {
+        List<YouTubeVideoDTO> videos = new ArrayList<>();
+        try {
+            // Check environment variables
+            System.out.println("=== YouTube API Environment Check ===");
+            System.out.println("API_KEY exists: " + (API_KEY != null && !API_KEY.isEmpty()));
+            System.out.println("API_HOST: " + API_HOST);
+            System.out.println("BASE_URL: " + BASE_URL);
+            System.out.println("====================================");
+
+            if (API_KEY == null || API_KEY.isEmpty()) {
+                System.err.println("ERROR: RAPIDAPI_KEY environment variable is not set!");
+                return videos;
+            }
+
+            // URL encode the query
+            String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+
+            // Build request URL
+            String requestUrl = BASE_URL + "?q=" + encodedQuery + "&hl=en&gl=US";
+            System.out.println("Request URL: " + requestUrl);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(requestUrl))
+                    .header("x-rapidapi-key", API_KEY)
+                    .header("x-rapidapi-host", API_HOST)
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Log the raw response for debugging
+            System.out.println("=== YouTube API Response Debug ===");
+            System.out.println("Status Code: " + response.statusCode());
+            System.out.println("Response Body (first 500 chars): " +
+                    (response.body().length() > 500 ? response.body().substring(0, 500) : response.body()));
+            System.out.println("==================================");
+
+            // Parse JSON response
+            JSONObject jsonResponse = new JSONObject(response.body());
+
+            // Debug: print all keys in the response
+            System.out.println("JSON Keys: " + jsonResponse.keySet());
+
+            // Get contents array
+            JSONArray contentsArray = jsonResponse.optJSONArray("contents");
+
+            if (contentsArray != null) {
+                System.out.println("Found 'contents' array with " + contentsArray.length() + " items");
+                int videoCount = 0;
+
+                for (int i = 0; i < contentsArray.length() && videoCount < limit; i++) {
+                    JSONObject contentItem = contentsArray.getJSONObject(i);
+
+                    // Check if this is a video type
+                    String type = contentItem.optString("type", "");
+                    if ("video".equals(type)) {
+                        JSONObject videoJson = contentItem.optJSONObject("video");
+                        if (videoJson != null) {
+                            YouTubeVideoDTO video = jsonToDTO(videoJson);
+                            if (video != null && video.getVideoId() != null && !video.getVideoId().isEmpty()) {
+                                videos.add(video);
+                                videoCount++;
+                            }
+                        }
+                    }
+                }
+            } else {
+                System.out.println("WARNING: 'contents' array is null or not found in response");
+            }
+
+            System.out.println("Fetched " + videos.size() + " videos from API for query: " + query);
+        } catch (Exception e) {
+            System.err.println("Error fetching videos from API: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return videos;
+    }
+
+    /**
+     * Determine search query from exercise data
+     * Priority: equipment (if not "body weight") -> exercise name
+     * Enhancement: Add "how to" + "tutorial" for better instructional videos
+     */
+    public String determineSearchQuery(String equipment, String exerciseName) {
+        String baseQuery = "";
+
+        // If equipment is meaningful (not "body weight" or empty), use it
+        if (equipment != null && !equipment.trim().isEmpty()
+                && !equipment.equalsIgnoreCase("body weight")
+                && !equipment.equalsIgnoreCase("bodyweight")) {
+            baseQuery = equipment;
+        } else {
+            // Otherwise use exercise name
+            baseQuery = exerciseName != null ? exerciseName : "";
+        }
+
+        // Enhance query for better video results
+        if (!baseQuery.isEmpty()) {
+            return "how to " + baseQuery + " tutorial";
+        }
+
+        return baseQuery;
+    }
+
+    /**
+     * Check if cache is expired
+     */
+    private boolean isCacheExpired(VideoCacheDTO cache, int hours) {
+        if (cache == null || cache.getLastUpdated() == null) {
+            return true;
+        }
+        long diffInMillis = System.currentTimeMillis() - cache.getLastUpdated().getTime();
+        long diffInHours = diffInMillis / (1000 * 60 * 60);
+        return diffInHours >= hours;
+    }
+
+    /**
+     * Save videos to cache
+     */
+    private void saveToCache(String query, List<YouTubeVideoDTO> videos) {
+        try {
+            Date now = new Date();
+            VideoCacheDTO cache = new VideoCacheDTO();
+            cache.setSearchQuery(query);
+            cache.setVideos(videos);
+            cache.setLastUpdated(now);
+
+            // Check if this is a new cache entry
+            VideoCacheDTO existing = videoCacheDAO.findBySearchQuery(query);
+            if (existing == null) {
+                cache.setCreatedAt(now);
+            } else {
+                cache.setCreatedAt(existing.getCreatedAt());
+            }
+
+            videoCacheDAO.insertOrUpdate(cache);
+            System.out.println("Saved " + videos.size() + " videos to cache for query: " + query);
+        } catch (Exception e) {
+            System.err.println("Error saving videos to cache: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Convert JSON object to YouTubeVideoDTO
+     */
+    private YouTubeVideoDTO jsonToDTO(JSONObject json) {
+        try {
+            YouTubeVideoDTO video = new YouTubeVideoDTO();
+
+            video.setVideoId(json.optString("videoId", ""));
+            video.setTitle(json.optString("title", ""));
+            video.setPublishedTime(json.optString("publishedTimeText", ""));
+            video.setLengthSeconds(json.optInt("lengthSeconds", 0));
+
+            // Get thumbnail (prefer highest quality: 720w or 360w)
+            JSONArray thumbnails = json.optJSONArray("thumbnails");
+            if (thumbnails != null && thumbnails.length() > 0) {
+                // Use the last thumbnail (usually highest quality)
+                JSONObject thumbnail = thumbnails.getJSONObject(thumbnails.length() - 1);
+                video.setThumbnailUrl(thumbnail.optString("url", ""));
+            }
+
+            // Get channel/author information
+            JSONObject author = json.optJSONObject("author");
+            if (author != null) {
+                video.setChannelName(author.optString("title", ""));
+                video.setChannelId(author.optString("channelId", ""));
+
+                // Get channel avatar
+                JSONArray avatars = author.optJSONArray("avatar");
+                if (avatars != null && avatars.length() > 0) {
+                    JSONObject avatar = avatars.getJSONObject(0);
+                    video.setChannelAvatar(avatar.optString("url", ""));
+                }
+            }
+
+            return video;
+        } catch (Exception e) {
+            System.err.println("Error converting JSON to YouTubeVideoDTO: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+}

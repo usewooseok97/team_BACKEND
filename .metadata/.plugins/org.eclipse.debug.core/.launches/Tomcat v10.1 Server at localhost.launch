@@ -2,11 +2,15 @@
 <launchConfiguration type="org.eclipse.jst.server.tomcat.core.launchConfigurationType">
     <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="AMAZON_API_BASE_URL" value="https://amazon-product-search-api1.p.rapidapi.com/search"/>
+        <mapEntry key="AMAZON_RAPIDAPI_HOST" value="amazon-product-search-api1.p.rapidapi.com/search"/>
         <mapEntry key="EXERCISE_API_BASE_URL" value="https://exercisedb.p.rapidapi.com"/>
         <mapEntry key="MONGO_CONNECTION_STRING" value="mongodb+srv://admin:admin@workoutcluster.snlejtj.mongodb.net/"/>
         <mapEntry key="MONGO_DB_NAME" value="WORKOUT_DB"/>
         <mapEntry key="RAPIDAPI_HOST" value="exercisedb.p.rapidapi.com"/>
         <mapEntry key="RAPIDAPI_KEY" value="1a077de20bmshdbdbe3f303aa16dp143e78jsn02e222a21c6a"/>
+        <mapEntry key="YOUTUBE_API_BASE_URL" value="https://youtube138.p.rapidapi.com/search"/>
+        <mapEntry key="YOUTUBE_RAPIDAPI_HOST" value="youtube138.p.rapidapi.com/search"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>

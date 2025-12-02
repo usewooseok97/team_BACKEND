@@ -2,199 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="header.jsp" %>
 
-<style>
-    .detail-container {
-        max-width: 900px;
-        margin: 50px auto;
-        padding: 20px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .detail-header {
-        border-bottom: 3px solid #667eea;
-        padding-bottom: 20px;
-        margin-bottom: 30px;
-    }
-
-    .detail-title {
-        font-size: 32px;
-        font-weight: bold;
-        color: #333;
-        text-transform: capitalize;
-        margin-bottom: 15px;
-    }
-
-    .detail-badges {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .badge-bodypart {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .badge-target {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-    }
-
-    .badge-equipment {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-    }
-
-    .badge-difficulty {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        color: white;
-    }
-
-    .badge-category {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        color: white;
-    }
-
-    .detail-section {
-        margin-bottom: 30px;
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 15px;
-        padding-left: 10px;
-        border-left: 4px solid #667eea;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .info-item {
-        padding: 15px;
-        background: #f5f5f5;
-        border-radius: 8px;
-    }
-
-    .info-label {
-        font-weight: bold;
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 5px;
-    }
-
-    .info-value {
-        color: #333;
-        font-size: 16px;
-        text-transform: capitalize;
-    }
-
-    .instruction-list {
-        list-style: none;
-        padding: 0;
-        counter-reset: instruction-counter;
-    }
-
-    .instruction-list li {
-        counter-increment: instruction-counter;
-        padding: 15px;
-        margin-bottom: 10px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        position: relative;
-        padding-left: 50px;
-    }
-
-    .instruction-list li::before {
-        content: counter(instruction-counter);
-        position: absolute;
-        left: 15px;
-        top: 15px;
-        background: #667eea;
-        color: white;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    .muscle-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .muscle-tag {
-        background: #e3f2fd;
-        color: #1976d2;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 14px;
-    }
-
-    .back-button {
-        display: inline-block;
-        background: #6c757d;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: background 0.2s;
-        margin-top: 20px;
-    }
-
-    .back-button:hover {
-        background: #5a6268;
-    }
-
-    .description-box {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
-        padding: 15px;
-        border-radius: 4px;
-        color: #856404;
-    }
-
-    .exercise-image-section {
-        margin-bottom: 30px;
-    }
-
-    .exercise-detail-image-container {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        background: #f5f5f5;
-    }
-
-    .exercise-detail-image {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-</style>
-
+<link rel="stylesheet" type="text/css" href="css/exerciseDetailstyle.css">
 <div class="detail-container">
     <c:choose>
         <c:when test="${not empty exercise}">
@@ -273,6 +81,95 @@
                             <li>${instruction}</li>
                         </c:forEach>
                     </ol>
+                </div>
+            </c:if>
+
+            <!-- YouTube Tutorial Videos Section -->
+            <c:if test="${not empty youtubeVideos}">
+                <div class="detail-section">
+                    <h2 class="section-title">Tutorial Videos</h2>
+                    <p class="video-subtitle">Learn how to perform "${videoSearchQuery}"</p>
+
+                    <div class="youtube-videos-grid">
+                        <c:forEach var="video" items="${youtubeVideos}">
+                            <a href="https://youtube.com/watch?v=${video.videoId}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="video-card">
+
+                                <div class="video-thumbnail-wrapper">
+                                    <img src="${video.thumbnailUrl}"
+                                         alt="${video.title}"
+                                         class="video-thumbnail"
+                                         onerror="this.src='https://via.placeholder.com/360x202?text=Video'">
+                                    <div class="video-play-overlay">
+                                        <span class="play-icon">▶</span>
+                                    </div>
+                                </div>
+
+                                <div class="video-info">
+                                    <h3 class="video-title">${video.title}</h3>
+                                </div>
+                            </a>
+                        </c:forEach>
+                    </div>
+                </div>
+            </c:if>
+
+            <!-- Amazon Products Section -->
+
+            <c:if test="${not empty amazonProducts}">
+                <div class="detail-section">
+                    <h2 class="section-title">Recommended Equipment</h2>
+                    <p class="product-subtitle">Related products for "${searchQuery}"</p>
+
+                    <div class="amazon-products-grid">
+                        <c:forEach var="product" items="${amazonProducts}">
+                            <a href="${product.url}" target="_blank" rel="noopener noreferrer" class="product-card">
+                                <div class="product-image-wrapper">
+                                    <img src="${product.image}"
+                                         alt="${product.name}"
+                                         class="product-image"
+                                         onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                                    <c:if test="${product.isBestSeller}">
+                                        <span class="badge-bestseller">Best Seller</span>
+                                    </c:if>
+                                    <c:if test="${product.hasPrime}">
+                                        <span class="badge-prime">Prime</span>
+                                    </c:if>
+                                </div>
+
+                                <div class="product-info">
+                                    <h3 class="product-name">${product.name}</h3>
+
+                                    <div class="product-rating">
+                                        <c:if test="${product.stars > 0}">
+                                            <span class="stars">★ ${product.stars}</span>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="product-price">
+                                        <c:choose>
+                                            <c:when test="${not empty product.priceString}">
+                                                <span class="price-value">${product.priceString}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="price-unavailable">Price not available</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+
+                                    <div class="product-view-button">
+                                        View on Amazon →
+                                    </div>
+                                </div>
+                            </a>
+                        </c:forEach>
+                    </div>
+
+                    <p class="amazon-disclaimer">
+                        * Product information is provided by Amazon. Prices and availability may vary.
+                    </p>
                 </div>
             </c:if>
 

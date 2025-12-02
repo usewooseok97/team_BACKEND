@@ -1,7 +1,11 @@
 package controller;
 
+import dto.AmazonProductDTO;
 import dto.ExerciseDTO;
+import dto.YouTubeVideoDTO;
+import service.AmazonProductService;
 import service.ExerciseService;
+import service.YouTubeVideoService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,10 +19,14 @@ import java.util.List;
 @WebServlet("/exercises")
 public class ExerciseServlet extends HttpServlet {
     private ExerciseService exerciseService;
+    private AmazonProductService amazonProductService;
+    private YouTubeVideoService youtubeVideoService;
 
     @Override
     public void init() throws ServletException {
         exerciseService = ExerciseService.getInstance();
+        amazonProductService = AmazonProductService.getInstance();
+        youtubeVideoService = YouTubeVideoService.getInstance();
     }
 
     @Override
@@ -110,6 +118,33 @@ public class ExerciseServlet extends HttpServlet {
 
             if (exercise != null) {
                 request.setAttribute("exercise", exercise);
+
+                // Fetch YouTube videos based on exercise data
+                String videoSearchQuery = youtubeVideoService.determineSearchQuery(
+                    exercise.getEquipment(),
+                    exercise.getName()
+                );
+
+                if (!videoSearchQuery.isEmpty()) {
+                    List<YouTubeVideoDTO> youtubeVideos =
+                        youtubeVideoService.getVideos(videoSearchQuery, 3);
+                    request.setAttribute("youtubeVideos", youtubeVideos);
+                    request.setAttribute("videoSearchQuery", videoSearchQuery);
+                }
+
+                // Fetch Amazon products based on exercise data
+                String searchQuery = amazonProductService.determineSearchQuery(
+                    exercise.getEquipment(),
+                    exercise.getName()
+                );
+
+                if (!searchQuery.isEmpty()) {
+                    List<AmazonProductDTO> amazonProducts =
+                        amazonProductService.getProducts(searchQuery, 10);
+                    request.setAttribute("amazonProducts", amazonProducts);
+                    request.setAttribute("searchQuery", searchQuery);
+                }
+
                 request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "해당 운동을 찾을 수 없습니다.");
@@ -242,8 +277,35 @@ public class ExerciseServlet extends HttpServlet {
                 request.setAttribute("error", "\"" + query + "\"에 대한 검색 결과가 없습니다.");
                 request.getRequestDispatcher("/exercises.jsp").forward(request, response);
             } else if (results.size() == 1) {
-                request.setAttribute("exercise", results.get(0));
-                request.setAttribute("searchQuery", query);
+                ExerciseDTO exercise = results.get(0);
+                request.setAttribute("exercise", exercise);
+
+                // Fetch YouTube videos based on exercise data
+                String videoSearchQuery = youtubeVideoService.determineSearchQuery(
+                    exercise.getEquipment(),
+                    exercise.getName()
+                );
+
+                if (!videoSearchQuery.isEmpty()) {
+                    List<YouTubeVideoDTO> youtubeVideos =
+                        youtubeVideoService.getVideos(videoSearchQuery, 3);
+                    request.setAttribute("youtubeVideos", youtubeVideos);
+                    request.setAttribute("videoSearchQuery", videoSearchQuery);
+                }
+
+                // Fetch Amazon products based on exercise data
+                String searchQuery = amazonProductService.determineSearchQuery(
+                    exercise.getEquipment(),
+                    exercise.getName()
+                );
+
+                if (!searchQuery.isEmpty()) {
+                    List<AmazonProductDTO> amazonProducts =
+                        amazonProductService.getProducts(searchQuery, 10);
+                    request.setAttribute("amazonProducts", amazonProducts);
+                    request.setAttribute("searchQuery", searchQuery);
+                }
+
                 request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
             } else {
                 request.setAttribute("exercises", results);

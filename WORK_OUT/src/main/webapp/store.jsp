@@ -13,8 +13,6 @@
 </head>
 <%@ include file="header.jsp" %>
 <body>
-
-
     <div class="coming-soon">
         <h1>🏪 STORE</h1>
         <p>STORE PAGE IN PREPARATION. PLEASE STAY TUNED.</p>
