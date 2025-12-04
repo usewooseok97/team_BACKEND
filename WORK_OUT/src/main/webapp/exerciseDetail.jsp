@@ -35,19 +35,19 @@
             <div class="detail-section">
                 <div class="info-grid">
                     <div class="info-item">
-                        <div class="info-label">운동 ID</div>
+                        <div class="info-label">WORKOUT ID</div>
                         <div class="info-value">${exercise.id}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">주요 근육</div>
+                        <div class="info-label">Target Muscles</div>
                         <div class="info-value">${exercise.target}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">신체 부위</div>
+                        <div class="info-label">Body Part</div>
                         <div class="info-value">${exercise.bodyPart}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">필요 장비</div>
+                        <div class="info-label">Required Equipment</div>
                         <div class="info-value">${exercise.equipment}</div>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
 
             <c:if test="${not empty exercise.description}">
                 <div class="detail-section">
-                    <h2 class="section-title">설명</h2>
+                    <h2 class="section-title">Description</h2>
                     <div class="description-box">
                         ${exercise.description}
                     </div>
@@ -64,7 +64,7 @@
 
             <c:if test="${not empty exercise.secondaryMuscles}">
                 <div class="detail-section">
-                    <h2 class="section-title">보조 근육</h2>
+                    <h2 class="section-title">Minor Muscles</h2>
                     <div class="muscle-list">
                         <c:forEach var="muscle" items="${exercise.secondaryMuscles}">
                             <span class="muscle-tag">${muscle}</span>
@@ -75,7 +75,7 @@
 
             <c:if test="${not empty exercise.instructions}">
                 <div class="detail-section">
-                    <h2 class="section-title">운동 방법</h2>
+                    <h2 class="section-title">How To?</h2>
                     <ol class="instruction-list">
                         <c:forEach var="instruction" items="${exercise.instructions}">
                             <li>${instruction}</li>
@@ -173,13 +173,13 @@
                 </div>
             </c:if>
 
-            <a href="${pageContext.request.contextPath}/exercises" class="back-button">목록으로 돌아가기</a>
+            <a href="${pageContext.request.contextPath}/exercises" class="back-button">Go Back to the List</a>
         </c:when>
         <c:otherwise>
             <div class="detail-header">
-                <h1 class="detail-title">운동을 찾을 수 없습니다</h1>
+                <h1 class="detail-title">Exercise Not Found</h1>
             </div>
-            <a href="${pageContext.request.contextPath}/exercises" class="back-button">목록으로 돌아가기</a>
+            <a href="${pageContext.request.contextPath}/exercises" class="back-button">Go Back to the List</a>
         </c:otherwise>
     </c:choose>
 </div>

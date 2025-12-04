@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마이페이지 - WORK OUT</title>
+    <title>MyPage - WORK OUT</title>
     <link rel="stylesheet" type="text/css" href="css/mypagestyle.css">
 
 </head>
@@ -13,26 +13,26 @@
 <body>
 
     <div class="form-container">
-        <h2 class="form-title">마이페이지</h2>
-        <p class="form-subtitle">회원 정보 수정</p>
+        <h2 class="form-title">MyPage</h2>
+        <p class="form-subtitle">Edit My Profile</p>
 
         <!-- 기본 정보 표시 -->
         <div class="info-box">
             <div class="info-row">
-                <span class="info-label">아이디:</span>
+                <span class="info-label">ID:</span>
                 <span class="info-value">${user.username}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">회원 등급:</span>
+                <span class="info-label">Role:</span>
                 <span class="info-value">
                     <c:choose>
-                        <c:when test="${user.role == 'ADMIN'}">관리자</c:when>
-                        <c:otherwise>일반 회원</c:otherwise>
+                        <c:when test="${user.role == 'ADMIN'}">Admin</c:when>
+                        <c:otherwise>Regular</c:otherwise>
                     </c:choose>
                 </span>
             </div>
             <div class="info-row">
-                <span class="info-label">가입일:</span>
+                <span class="info-label">Joined Date:</span>
                 <span class="info-value">${user.regDate}</span>
             </div>
         </div>
@@ -47,36 +47,36 @@
 
         <form action="mypage" method="post">
             <div class="form-group">
-                <label class="form-label" for="username">아이디</label>
+                <label class="form-label" for="username">ID</label>
                 <input type="text" id="username" name="username" class="form-input"
                        value="${user.username}" disabled>
-                <p class="help-text">아이디는 변경할 수 없습니다.</p>
+                <p class="help-text">ID Can't Be Changed.</p>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">새 비밀번호</label>
+                <label class="form-label" for="password">New Password</label>
                 <input type="password" id="password" name="password" class="form-input"
-                       placeholder="변경하지 않으려면 비워두세요">
-                <p class="help-text">비밀번호를 변경하려면 입력하세요.</p>
+                       placeholder="">
+                <p class="help-text">Please Enter your New Password.</p>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="passwordConfirm">새 비밀번호 확인</label>
+                <label class="form-label" for="passwordConfirm">Password Confirmation</label>
                 <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-input"
-                       placeholder="새 비밀번호를 다시 입력하세요">
+                       placeholder="">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="name">이름 <span class="required">*</span></label>
+                <label class="form-label" for="name">Name <span class="required">*</span></label>
                 <input type="text" id="name" name="name" class="form-input"
                        value="${user.name}" required>
             </div>
 
-            <button type="submit" class="form-button">정보 수정</button>
+            <button type="submit" class="form-button">Confirm</button>
         </form>
 
         <div class="form-link">
-            <a href="index.jsp">← 홈으로 돌아가기</a>
+            <a href="index.jsp">← Back to Home</a>
         </div>
     </div>
     <%@ include file="footer.jsp" %>

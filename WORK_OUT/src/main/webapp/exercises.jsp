@@ -34,7 +34,7 @@
                             </div>
                         </c:if>
                         <a href="${pageContext.request.contextPath}/exercises?action=detail&id=${exercise.id}" class="detail-button">
-                            상세보기
+                            Details
                         </a>
                     </div>
                 </c:forEach>

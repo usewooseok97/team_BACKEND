@@ -20,14 +20,15 @@ public class YouTubeVideoService {
     private static YouTubeVideoService instance = new YouTubeVideoService();
     private VideoCacheDAO videoCacheDAO;
 
-    // Environment variables
+    // RapidAPI YouTube 환경변수
     private static final String API_KEY = getEnvOrDefault("RAPIDAPI_KEY", "");
     private static final String API_HOST = getEnvOrDefault("YOUTUBE_RAPIDAPI_HOST", "");
-    private static final String BASE_URL = getEnvOrDefault("YOUTUBE_API_BASE_URL", "https://youtube138.p.rapidapi.com");
+    private static final String BASE_URL = getEnvOrDefault("YOUTUBE_API_BASE_URL",
+            "https://youtube138.p.rapidapi.com");
 
-    /**
-     * Get environment variable with fallback to default
-     */
+    // Groq AI KEY
+    private static final String GROQ_API_KEY = System.getenv("GROQ_API_KEY");
+
     private static String getEnvOrDefault(String key, String defaultValue) {
         String value = System.getenv(key);
         return (value != null && !value.isEmpty()) ? value : defaultValue;
@@ -42,63 +43,107 @@ public class YouTubeVideoService {
     }
 
     /**
-     * Get videos with caching
-     * - First check cache (if < 24h old, return cached)
-     * - Otherwise fetch from API and cache result
+     * ====================================================
+     *  AI 기반 검색어 생성 (Groq LLaMA-3.3 70B 사용)
+     * ====================================================
+     */
+    public String generateAIQuery(String exerciseName, String equipment) {
+        try {
+            if (GROQ_API_KEY == null || GROQ_API_KEY.isEmpty()) {
+                System.err.println("Groq API Key Missing — Using fallback query");
+                return exerciseName + " exercise proper form gym tutorial";
+            }
+
+            String prompt =
+                    "Generate a highly accurate YouTube search query for an exercise workout tutorial. "
+                            + "It must return proper form, step-by-step, slow motion, and instruction videos. "
+                            + "Exercise name: " + exerciseName
+                            + ", Equipment: " + equipment
+                            + ". Make sure the search query avoids music videos or unrelated content.";
+
+            JSONObject body = new JSONObject();
+            body.put("model", "llama-3.3-70b-versatile");
+
+            JSONArray messages = new JSONArray()
+                    .put(new JSONObject()
+                            .put("role", "user")
+                            .put("content", prompt));
+
+            body.put("messages", messages);
+            body.put("temperature", 0.2);
+            body.put("max_tokens", 25);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + GROQ_API_KEY)
+                    .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                    .build();
+
+            HttpResponse<String> response =
+                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+            JSONObject json = new JSONObject(response.body());
+
+            return json.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                    .trim();
+
+        } catch (Exception e) {
+            System.out.println("AI Query Generation Failed. Using fallback.");
+            return exerciseName + " proper form gym tutorial";
+        }
+    }
+
+    /**
+     * 검색어 결정 → AI 기반 버전
+     */
+    public String determineSearchQuery(String equipment, String exerciseName) {
+        return generateAIQuery(exerciseName, equipment);
+    }
+
+    /**
+     * ====================================================
+     *  메인: 캐시 → API → 저장 → 반환
+     * ====================================================
      */
     public List<YouTubeVideoDTO> getVideos(String query, int limit) {
         try {
-            // 1. Check cache
             VideoCacheDTO cache = videoCacheDAO.findBySearchQuery(query);
 
-            // 2. If cache exists and not expired (< 24 hours), return cached videos
             if (cache != null && !isCacheExpired(cache, 24)) {
                 System.out.println("Returning cached videos for query: " + query);
                 return cache.getVideos();
             }
 
-            // 3. Cache expired or doesn't exist - fetch from API
             System.out.println("Fetching fresh videos from API for query: " + query);
             List<YouTubeVideoDTO> videos = fetchFromAPI(query, limit);
 
-            // 4. Save to cache
-            if (!videos.isEmpty()) {
-                saveToCache(query, videos);
-            }
+            if (!videos.isEmpty()) saveToCache(query, videos);
 
-            // 5. Return videos
             return videos;
         } catch (Exception e) {
-            System.err.println("Error getting videos: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
     /**
-     * Fetch videos from YouTube API
+     * YouTube API 호출 (RapidAPI)
      */
     private List<YouTubeVideoDTO> fetchFromAPI(String query, int limit) {
         List<YouTubeVideoDTO> videos = new ArrayList<>();
-        try {
-            // Check environment variables
-            System.out.println("=== YouTube API Environment Check ===");
-            System.out.println("API_KEY exists: " + (API_KEY != null && !API_KEY.isEmpty()));
-            System.out.println("API_HOST: " + API_HOST);
-            System.out.println("BASE_URL: " + BASE_URL);
-            System.out.println("====================================");
 
+        try {
             if (API_KEY == null || API_KEY.isEmpty()) {
-                System.err.println("ERROR: RAPIDAPI_KEY environment variable is not set!");
+                System.err.println("RAPIDAPI_KEY not set!");
                 return videos;
             }
 
-            // URL encode the query
             String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-
-            // Build request URL
             String requestUrl = BASE_URL + "?q=" + encodedQuery + "&hl=en&gl=US";
-            System.out.println("Request URL: " + requestUrl);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(requestUrl))
@@ -107,160 +152,95 @@ public class YouTubeVideoService {
                     .method("GET", HttpRequest.BodyPublishers.noBody())
                     .build();
 
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response =
+                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Log the raw response for debugging
-            System.out.println("=== YouTube API Response Debug ===");
-            System.out.println("Status Code: " + response.statusCode());
-            System.out.println("Response Body (first 500 chars): " +
-                    (response.body().length() > 500 ? response.body().substring(0, 500) : response.body()));
-            System.out.println("==================================");
-
-            // Parse JSON response
             JSONObject jsonResponse = new JSONObject(response.body());
-
-            // Debug: print all keys in the response
-            System.out.println("JSON Keys: " + jsonResponse.keySet());
-
-            // Get contents array
             JSONArray contentsArray = jsonResponse.optJSONArray("contents");
 
             if (contentsArray != null) {
-                System.out.println("Found 'contents' array with " + contentsArray.length() + " items");
-                int videoCount = 0;
+                int count = 0;
 
-                for (int i = 0; i < contentsArray.length() && videoCount < limit; i++) {
-                    JSONObject contentItem = contentsArray.getJSONObject(i);
+                for (int i = 0; i < contentsArray.length() && count < limit; i++) {
+                    JSONObject item = contentsArray.getJSONObject(i);
 
-                    // Check if this is a video type
-                    String type = contentItem.optString("type", "");
-                    if ("video".equals(type)) {
-                        JSONObject videoJson = contentItem.optJSONObject("video");
+                    if ("video".equals(item.optString("type"))) {
+                        JSONObject videoJson = item.optJSONObject("video");
                         if (videoJson != null) {
-                            YouTubeVideoDTO video = jsonToDTO(videoJson);
-                            if (video != null && video.getVideoId() != null && !video.getVideoId().isEmpty()) {
-                                videos.add(video);
-                                videoCount++;
+                            YouTubeVideoDTO dto = jsonToDTO(videoJson);
+                            if (dto != null && dto.getVideoId() != null && !dto.getVideoId().isEmpty()) {
+                                videos.add(dto);
+                                count++;
                             }
                         }
                     }
                 }
-            } else {
-                System.out.println("WARNING: 'contents' array is null or not found in response");
             }
-
-            System.out.println("Fetched " + videos.size() + " videos from API for query: " + query);
         } catch (Exception e) {
-            System.err.println("Error fetching videos from API: " + e.getMessage());
+            System.err.println("YouTube API Error: " + e.getMessage());
             e.printStackTrace();
         }
+
         return videos;
     }
 
-    /**
-     * Determine search query from exercise data
-     * Priority: equipment (if not "body weight") -> exercise name
-     * Enhancement: Add "how to" + "tutorial" for better instructional videos
-     */
-    public String determineSearchQuery(String equipment, String exerciseName) {
-        String baseQuery = "";
-
-        // If equipment is meaningful (not "body weight" or empty), use it
-        if (equipment != null && !equipment.trim().isEmpty()
-                && !equipment.equalsIgnoreCase("body weight")
-                && !equipment.equalsIgnoreCase("bodyweight")) {
-            baseQuery = equipment;
-        } else {
-            // Otherwise use exercise name
-            baseQuery = exerciseName != null ? exerciseName : "";
-        }
-
-        // Enhance query for better video results
-        if (!baseQuery.isEmpty()) {
-            return "how to " + baseQuery + " tutorial";
-        }
-
-        return baseQuery;
-    }
-
-    /**
-     * Check if cache is expired
-     */
     private boolean isCacheExpired(VideoCacheDTO cache, int hours) {
-        if (cache == null || cache.getLastUpdated() == null) {
-            return true;
-        }
-        long diffInMillis = System.currentTimeMillis() - cache.getLastUpdated().getTime();
-        long diffInHours = diffInMillis / (1000 * 60 * 60);
-        return diffInHours >= hours;
+        if (cache == null || cache.getLastUpdated() == null) return true;
+
+        long diff = System.currentTimeMillis() - cache.getLastUpdated().getTime();
+        long hoursDiff = diff / (1000 * 60 * 60);
+
+        return hoursDiff >= hours;
     }
 
-    /**
-     * Save videos to cache
-     */
     private void saveToCache(String query, List<YouTubeVideoDTO> videos) {
         try {
             Date now = new Date();
             VideoCacheDTO cache = new VideoCacheDTO();
+
             cache.setSearchQuery(query);
             cache.setVideos(videos);
             cache.setLastUpdated(now);
 
-            // Check if this is a new cache entry
             VideoCacheDTO existing = videoCacheDAO.findBySearchQuery(query);
-            if (existing == null) {
-                cache.setCreatedAt(now);
-            } else {
-                cache.setCreatedAt(existing.getCreatedAt());
-            }
+            cache.setCreatedAt(existing == null ? now : existing.getCreatedAt());
 
             videoCacheDAO.insertOrUpdate(cache);
-            System.out.println("Saved " + videos.size() + " videos to cache for query: " + query);
+
         } catch (Exception e) {
-            System.err.println("Error saving videos to cache: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Convert JSON object to YouTubeVideoDTO
-     */
     private YouTubeVideoDTO jsonToDTO(JSONObject json) {
         try {
-            YouTubeVideoDTO video = new YouTubeVideoDTO();
+            YouTubeVideoDTO v = new YouTubeVideoDTO();
 
-            video.setVideoId(json.optString("videoId", ""));
-            video.setTitle(json.optString("title", ""));
-            video.setPublishedTime(json.optString("publishedTimeText", ""));
-            video.setLengthSeconds(json.optInt("lengthSeconds", 0));
+            v.setVideoId(json.optString("videoId", ""));
+            v.setTitle(json.optString("title", ""));
+            v.setPublishedTime(json.optString("publishedTimeText", ""));
+            v.setLengthSeconds(json.optInt("lengthSeconds", 0));
 
-            // Get thumbnail (prefer highest quality: 720w or 360w)
-            JSONArray thumbnails = json.optJSONArray("thumbnails");
-            if (thumbnails != null && thumbnails.length() > 0) {
-                // Use the last thumbnail (usually highest quality)
-                JSONObject thumbnail = thumbnails.getJSONObject(thumbnails.length() - 1);
-                video.setThumbnailUrl(thumbnail.optString("url", ""));
+            JSONArray thumbs = json.optJSONArray("thumbnails");
+            if (thumbs != null && thumbs.length() > 0) {
+                JSONObject t = thumbs.getJSONObject(thumbs.length() - 1);
+                v.setThumbnailUrl(t.optString("url", ""));
             }
 
-            // Get channel/author information
             JSONObject author = json.optJSONObject("author");
             if (author != null) {
-                video.setChannelName(author.optString("title", ""));
-                video.setChannelId(author.optString("channelId", ""));
+                v.setChannelName(author.optString("title", ""));
+                v.setChannelId(author.optString("channelId", ""));
 
-                // Get channel avatar
                 JSONArray avatars = author.optJSONArray("avatar");
                 if (avatars != null && avatars.length() > 0) {
-                    JSONObject avatar = avatars.getJSONObject(0);
-                    video.setChannelAvatar(avatar.optString("url", ""));
+                    v.setChannelAvatar(avatars.getJSONObject(0).optString("url", ""));
                 }
             }
 
-            return video;
+            return v;
+
         } catch (Exception e) {
-            System.err.println("Error converting JSON to YouTubeVideoDTO: " + e.getMessage());
-            e.printStackTrace();
             return null;
         }
     }
