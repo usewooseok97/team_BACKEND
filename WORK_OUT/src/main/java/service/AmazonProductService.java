@@ -13,8 +13,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AmazonProductService {
 
@@ -46,6 +48,35 @@ public class AmazonProductService {
 
     public static AmazonProductService getInstance() {
         return instance;
+    }
+
+    /**
+     * Splits a combined query by 'or', fetches products for the first 2 terms,
+     * and returns a combined list.
+     * @param combinedQuery A string containing search terms separated by " or ".
+     * @param limitPerQuery The number of products to fetch for each term.
+     * @return A list of AmazonProductDTO objects.
+     */
+    public List<AmazonProductDTO> getProductsFromCombinedQuery(String combinedQuery, int limitPerQuery) {
+        if (combinedQuery == null || combinedQuery.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        List<String> searchTerms = Arrays.stream(combinedQuery.split(" or "))
+                .map(String::trim)
+                .filter(term -> !term.isEmpty())
+                .collect(Collectors.toList());
+
+        List<AmazonProductDTO> allProducts = new ArrayList<>();
+        int termsToProcess = Math.min(searchTerms.size(), 2); // Process at most 2 terms
+
+        for (int i = 0; i < termsToProcess; i++) {
+            String term = searchTerms.get(i);
+            List<AmazonProductDTO> productsForTerm = getProducts(term, limitPerQuery);
+            allProducts.addAll(productsForTerm);
+        }
+
+        return allProducts;
     }
 
     // Get products (with caching)
@@ -134,28 +165,83 @@ public class AmazonProductService {
         return product;
     }
 
-    // AI Query Generator
-    public String determineSearchQuery(String equipment, String exerciseName) {
-        String baseQuery =
-                (equipment != null && !equipment.equalsIgnoreCase("bodyweight") && !equipment.isBlank())
-                        ? equipment
-                        : exerciseName;
-
+    /**
+     * ====================================================
+     *  AI 기반 검색어 생성 (Groq LLaMA-3.3 70B 사용)
+     * ====================================================
+     */
+    public String generateAIQuery(String exerciseName, String equipment) {
         try {
-            String prompt = String.format(
-                    "Generate a concise Amazon search keyword for exercise equipment related to '%s' (exercise: '%s'). Return only the keyword.",
-                    equipment, exerciseName);
+            String groqApiKey = System.getenv("GROQ_API_KEY");
 
-            String aiQuery = OpenAIKeywordGenerator.generateKeyword(prompt);
-
-            if (aiQuery != null && !aiQuery.isEmpty()) {
-                return aiQuery;
+            if (groqApiKey == null || groqApiKey.isEmpty()) {
+                System.err.println("Groq API Key Missing — Using fallback query");
+                return generateFallbackQuery(equipment, exerciseName);
             }
-        } catch (Exception e) {
-            System.err.println("AI Query Error: " + e.getMessage());
-        }
 
-        return baseQuery;
+            String prompt =
+                    "Generate a precise Amazon search keyword for exercise equipment. "
+                            + "Return ONLY the product search term, no explanations. "
+                            + "Exercise name: " + exerciseName
+                            + ", Equipment: " + equipment
+                            + ". Focus on the specific equipment needed for this exercise.";
+
+            JSONObject body = new JSONObject();
+            body.put("model", "llama-3.3-70b-versatile");
+
+            JSONArray messages = new JSONArray()
+                    .put(new JSONObject()
+                            .put("role", "user")
+                            .put("content", prompt));
+
+            body.put("messages", messages);
+            body.put("temperature", 0.2);
+            body.put("max_tokens", 25);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + groqApiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                    .build();
+
+            HttpResponse<String> response =
+                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+            JSONObject json = new JSONObject(response.body());
+
+            String aiQuery = json.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                    .trim();
+
+            System.out.println("AI Generated Query for Amazon: " + aiQuery);
+            return aiQuery;
+
+        } catch (Exception e) {
+            System.out.println("AI Query Generation Failed. Using fallback.");
+            e.printStackTrace();
+            return generateFallbackQuery(equipment, exerciseName);
+        }
+    }
+
+
+    /**
+     * Fallback 쿼리 생성
+     */
+    private String generateFallbackQuery(String equipment, String exerciseName) {
+        if (equipment != null && !equipment.equalsIgnoreCase("bodyweight") && !equipment.isBlank()) {
+            return equipment + " for " + exerciseName;
+        }
+        return exerciseName + " exercise equipment";
+    }
+
+    /**
+     * 검색어 결정 → AI 기반 버전
+     */
+    public String determineSearchQuery(String equipment, String exerciseName) {
+        return generateAIQuery(exerciseName, equipment);
     }
 
     // Cache expired?

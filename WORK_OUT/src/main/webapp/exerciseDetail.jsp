@@ -9,25 +9,57 @@
             <div class="detail-header">
                 <h1 class="detail-title">${exercise.name}</h1>
                 <div class="detail-badges">
-                    <span class="badge badge-bodypart">${exercise.bodyPart}</span>
-                    <span class="badge badge-target">${exercise.target}</span>
-                    <span class="badge badge-equipment">${exercise.equipment}</span>
-                    <c:if test="${not empty exercise.difficulty}">
-                        <span class="badge badge-difficulty">${exercise.difficulty}</span>
-                    </c:if>
                     <c:if test="${not empty exercise.category}">
                         <span class="badge badge-category">${exercise.category}</span>
+                    </c:if>
+                    <c:if test="${not empty exercise.level}">
+                        <span class="badge badge-difficulty">${exercise.level}</span>
+                    </c:if>
+                    <c:if test="${not empty exercise.equipment}">
+                        <span class="badge badge-equipment">${exercise.equipment}</span>
+                    </c:if>
+                    <c:if test="${not empty exercise.mechanic}">
+                        <span class="badge badge-bodypart">${exercise.mechanic}</span>
+                    </c:if>
+                    <c:if test="${not empty exercise.force}">
+                        <span class="badge badge-target">${exercise.force}</span>
                     </c:if>
                 </div>
             </div>
 
-            <c:if test="${not empty exercise.gifUrl}">
+            <c:if test="${not empty exercise.images}">
                 <div class="exercise-image-section">
                     <div class="exercise-detail-image-container">
-                        <img src="${exercise.gifUrl}"
-                             alt="${exercise.name}"
-                             class="exercise-detail-image"
-                             onerror="this.parentElement.parentElement.style.display='none'">
+                        <c:forEach var="imageUrl" items="${exercise.images}" varStatus="status">
+                            <c:if test="${status.index < 2}">
+                                <c:choose>
+                                    <c:when test="${imageUrl.startsWith('http://') || imageUrl.startsWith('https://')}">
+                                        <!-- 외부 URL -->
+                                        <img src="${imageUrl}"
+                                             alt="${exercise.name} - Image ${status.index + 1}"
+                                             class="exercise-detail-image"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:when>
+                                    <c:when test="${imageUrl.startsWith('images/')}">
+                                        <!-- 로컬 이미지 경로 -->
+                                        <img src="${pageContext.request.contextPath}/${imageUrl}"
+                                             alt="${exercise.name} - Image ${status.index + 1}"
+                                             class="exercise-detail-image"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <!-- 짧은 URL (https:// 추가) -->
+                                        <img src="https://${imageUrl}"
+                                             alt="${exercise.name} - Image ${status.index + 1}"
+                                             class="exercise-detail-image"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:if>
+                        </c:forEach>
                     </div>
                 </div>
             </c:if>
@@ -38,36 +70,56 @@
                         <div class="info-label">WORKOUT ID</div>
                         <div class="info-value">${exercise.id}</div>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Target Muscles</div>
-                        <div class="info-value">${exercise.target}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Body Part</div>
-                        <div class="info-value">${exercise.bodyPart}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Required Equipment</div>
-                        <div class="info-value">${exercise.equipment}</div>
-                    </div>
+                    <c:if test="${not empty exercise.category}">
+                        <div class="info-item">
+                            <div class="info-label">Category</div>
+                            <div class="info-value">${exercise.category}</div>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty exercise.equipment}">
+                        <div class="info-item">
+                            <div class="info-label">Required Equipment</div>
+                            <div class="info-value">${exercise.equipment}</div>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty exercise.level}">
+                        <div class="info-item">
+                            <div class="info-label">Difficulty Level</div>
+                            <div class="info-value">${exercise.level}</div>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty exercise.mechanic}">
+                        <div class="info-item">
+                            <div class="info-label">Mechanic</div>
+                            <div class="info-value">${exercise.mechanic}</div>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty exercise.force}">
+                        <div class="info-item">
+                            <div class="info-label">Force</div>
+                            <div class="info-value">${exercise.force}</div>
+                        </div>
+                    </c:if>
                 </div>
             </div>
 
-            <c:if test="${not empty exercise.description}">
+            <c:if test="${not empty exercise.primaryMuscles}">
                 <div class="detail-section">
-                    <h2 class="section-title">Description</h2>
-                    <div class="description-box">
-                        ${exercise.description}
+                    <h2 class="section-title">Primary Muscles</h2>
+                    <div class="muscle-list">
+                        <c:forEach var="muscle" items="${exercise.primaryMuscles}">
+                            <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="muscle-tag">${muscle}</a>
+                        </c:forEach>
                     </div>
                 </div>
             </c:if>
 
             <c:if test="${not empty exercise.secondaryMuscles}">
                 <div class="detail-section">
-                    <h2 class="section-title">Minor Muscles</h2>
+                    <h2 class="section-title">Secondary Muscles</h2>
                     <div class="muscle-list">
                         <c:forEach var="muscle" items="${exercise.secondaryMuscles}">
-                            <span class="muscle-tag">${muscle}</span>
+                            <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="muscle-tag">${muscle}</a>
                         </c:forEach>
                     </div>
                 </div>

@@ -187,6 +187,8 @@
     .exercise-detail-image {
         width: 100%;
         height: auto;
+        max-width: 400px; 
+        margin: 10px;
         display: block;
     }
 

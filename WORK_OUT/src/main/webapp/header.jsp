@@ -19,14 +19,6 @@
         </form>
     </div>
     <div class="nav-right">
-        <div class="lang-selector">
-            <input type="radio" id="lang-en" name="language" class="lang-radio" checked>
-            <label for="lang-en" class="lang-label">EN</label>
-            /
-            <input type="radio" id="lang-kr" name="language" class="lang-radio">
-            <label for="lang-kr" class="lang-label">KR</label>
-        </div>
-
         <a href="store.jsp" class="nav-button">Store</a>
         <a href="${pageContext.request.contextPath}/exercises" class="nav-button">Exercises</a>
         <c:choose>
@@ -45,4 +37,3 @@
         </c:choose>
     </div>
 </nav>
-

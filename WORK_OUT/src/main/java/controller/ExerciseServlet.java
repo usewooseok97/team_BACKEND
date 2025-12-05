@@ -2,6 +2,7 @@ package controller;
 
 import dto.AmazonProductDTO;
 import dto.ExerciseDTO;
+import dto.ExerciseDetailDTO;
 import dto.YouTubeVideoDTO;
 import service.AmazonProductService;
 import service.ExerciseService;
@@ -52,11 +53,14 @@ public class ExerciseServlet extends HttpServlet {
             case "sync":
                 syncExercises(request, response);
                 break;
+            case "syncFromDetails":
+                syncExercisesFromDetails(request, response);
+                break;
+            case "syncImages":
+                syncImagesFromExerciseDetails(request, response);
+                break;
             case "filter":
                 filterExercises(request, response);
-                break;
-            case "updateImages":
-                updateExerciseImages(request, response);
                 break;
             case "search":
                 searchExercises(request, response);
@@ -78,6 +82,8 @@ public class ExerciseServlet extends HttpServlet {
 
         if ("sync".equals(action)) {
             syncExercises(request, response);
+        } else if ("syncFromDetails".equals(action)) {
+            syncExercisesFromDetails(request, response);
         } else {
             response.sendRedirect(request.getContextPath() + "/exercises");
         }
@@ -114,15 +120,15 @@ public class ExerciseServlet extends HttpServlet {
         }
 
         try {
-            ExerciseDTO exercise = exerciseService.getExerciseById(id);
+            ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(id);
 
-            if (exercise != null) {
-                request.setAttribute("exercise", exercise);
+            if (exerciseDetail != null) {
+                request.setAttribute("exercise", exerciseDetail);
 
                 // Fetch YouTube videos based on exercise data
                 String videoSearchQuery = youtubeVideoService.determineSearchQuery(
-                    exercise.getEquipment(),
-                    exercise.getName()
+                    exerciseDetail.getEquipment(),
+                    exerciseDetail.getName()
                 );
 
                 if (!videoSearchQuery.isEmpty()) {
@@ -134,13 +140,13 @@ public class ExerciseServlet extends HttpServlet {
 
                 // Fetch Amazon products based on exercise data
                 String searchQuery = amazonProductService.determineSearchQuery(
-                    exercise.getEquipment(),
-                    exercise.getName()
+                    exerciseDetail.getEquipment(),
+                    exerciseDetail.getName()
                 );
 
                 if (!searchQuery.isEmpty()) {
                     List<AmazonProductDTO> amazonProducts =
-                        amazonProductService.getProducts(searchQuery, 10);
+                        amazonProductService.getProductsFromCombinedQuery(searchQuery, 5);
                     request.setAttribute("amazonProducts", amazonProducts);
                     request.setAttribute("searchQuery", searchQuery);
                 }
@@ -173,7 +179,7 @@ public class ExerciseServlet extends HttpServlet {
         }
 
         try {
-            boolean success = exerciseService.syncExercisesFromAPI(limit);
+            boolean success = exerciseService.syncAllExercisesFromAPI(limit);
 
             if (success) {
                 long count = exerciseService.getExerciseCount();
@@ -205,14 +211,11 @@ public class ExerciseServlet extends HttpServlet {
             List<ExerciseDTO> exercises = null;
 
             switch (filterType) {
-                case "target":
-                    exercises = exerciseService.getExercisesByTarget(filterValue);
+                case "primaryMuscle":
+                    exercises = exerciseService.getExercisesByPrimaryMuscle(filterValue);
                     break;
-                case "bodyPart":
-                    exercises = exerciseService.getExercisesByBodyPart(filterValue);
-                    break;
-                case "equipment":
-                    exercises = exerciseService.getExercisesByEquipment(filterValue);
+                case "level":
+                    exercises = exerciseService.getExercisesByLevel(filterValue);
                     break;
                 default:
                     exercises = exerciseService.getAllExercises();
@@ -234,25 +237,48 @@ public class ExerciseServlet extends HttpServlet {
         }
     }
 
-    private void updateExerciseImages(HttpServletRequest request, HttpServletResponse response)
+    private void syncExercisesFromDetails(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            System.out.println("Starting exercise images update...");
-            int updatedCount = exerciseService.updateAllExerciseImages();
+            // 웹앱 실제 경로 가져오기 (이미지 다운로드용)
+            String webappPath = getServletContext().getRealPath("/");
 
-            if (updatedCount > 0) {
-                request.setAttribute("message",
-                    updatedCount + "개의 운동 이미지를 성공적으로 업데이트했습니다.");
+            boolean success = exerciseService.syncExercisesFromDetails(webappPath);
+
+            if (success) {
+                long count = exerciseService.getExerciseCount();
+                request.setAttribute("message", "exerciseDetails에서 " + count + "개의 운동 데이터를 성공적으로 동기화했습니다. (이미지 다운로드 완료)");
             } else {
-                request.setAttribute("message", "업데이트할 이미지가 없습니다. 모든 운동에 이미 이미지가 있습니다.");
+                request.setAttribute("error", "exerciseDetails가 비어있거나 동기화에 실패했습니다.");
             }
-
-            System.out.println("Exercise images update completed. Updated: " + updatedCount);
         } catch (Exception e) {
-            System.err.println("Error updating exercise images: " + e.getMessage());
+            System.err.println("Error syncing exercises from details: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("error", "운동 이미지 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+            request.setAttribute("error", "운동 데이터 동기화 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        listExercises(request, response);
+    }
+
+    private void syncImagesFromExerciseDetails(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            // 웹앱 실제 경로 가져오기 (이미지 다운로드용)
+            String webappPath = getServletContext().getRealPath("/");
+
+            boolean success = exerciseService.syncImagesFromExerciseDetails(webappPath);
+
+            if (success) {
+                request.setAttribute("message", "exerciseDetails의 이미지를 성공적으로 다운로드하여 images 테이블에 저장했습니다.");
+            } else {
+                request.setAttribute("error", "이미지 동기화에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error syncing images from exerciseDetails: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "이미지 동기화 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         listExercises(request, response);
@@ -277,36 +303,44 @@ public class ExerciseServlet extends HttpServlet {
                 request.setAttribute("error", "\"" + query + "\"에 대한 검색 결과가 없습니다.");
                 request.getRequestDispatcher("/exercises.jsp").forward(request, response);
             } else if (results.size() == 1) {
+                // 검색 결과가 1개면 바로 detail 페이지로
                 ExerciseDTO exercise = results.get(0);
-                request.setAttribute("exercise", exercise);
+                ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(exercise.getId());
 
-                // Fetch YouTube videos based on exercise data
-                String videoSearchQuery = youtubeVideoService.determineSearchQuery(
-                    exercise.getEquipment(),
-                    exercise.getName()
-                );
+                if (exerciseDetail != null) {
+                    request.setAttribute("exercise", exerciseDetail);
 
-                if (!videoSearchQuery.isEmpty()) {
-                    List<YouTubeVideoDTO> youtubeVideos =
-                        youtubeVideoService.getVideos(videoSearchQuery, 3);
-                    request.setAttribute("youtubeVideos", youtubeVideos);
-                    request.setAttribute("videoSearchQuery", videoSearchQuery);
+                    // Fetch YouTube videos based on exercise data
+                    String videoSearchQuery = youtubeVideoService.determineSearchQuery(
+                        exerciseDetail.getEquipment(),
+                        exerciseDetail.getName()
+                    );
+
+                    if (!videoSearchQuery.isEmpty()) {
+                        List<YouTubeVideoDTO> youtubeVideos =
+                            youtubeVideoService.getVideos(videoSearchQuery, 3);
+                        request.setAttribute("youtubeVideos", youtubeVideos);
+                        request.setAttribute("videoSearchQuery", videoSearchQuery);
+                    }
+
+                    // Fetch Amazon products based on exercise data
+                    String searchQuery = amazonProductService.determineSearchQuery(
+                        exerciseDetail.getEquipment(),
+                        exerciseDetail.getName()
+                    );
+
+                    if (!searchQuery.isEmpty()) {
+                        List<AmazonProductDTO> amazonProducts =
+                            amazonProductService.getProductsFromCombinedQuery(searchQuery, 5);
+                        request.setAttribute("amazonProducts", amazonProducts);
+                        request.setAttribute("searchQuery", searchQuery);
+                    }
+
+                    request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("error", "운동 상세 정보를 찾을 수 없습니다.");
+                    request.getRequestDispatcher("/exercises.jsp").forward(request, response);
                 }
-
-                // Fetch Amazon products based on exercise data
-                String searchQuery = amazonProductService.determineSearchQuery(
-                    exercise.getEquipment(),
-                    exercise.getName()
-                );
-
-                if (!searchQuery.isEmpty()) {
-                    List<AmazonProductDTO> amazonProducts =
-                        amazonProductService.getProducts(searchQuery, 10);
-                    request.setAttribute("amazonProducts", amazonProducts);
-                    request.setAttribute("searchQuery", searchQuery);
-                }
-
-                request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
             } else {
                 request.setAttribute("exercises", results);
                 request.setAttribute("exerciseCount", results.size());

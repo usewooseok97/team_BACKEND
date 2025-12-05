@@ -20,17 +20,57 @@
             <div class="exercise-grid">
                 <c:forEach var="exercise" items="${exercises}">
                     <div class="exercise-card">
+                        <c:if test="${not empty exercise.images && exercise.images.size() > 0}">
+                            <div class="exercise-image">
+                                <c:set var="imageUrl" value="${exercise.images[0]}" />
+                                <c:choose>
+                                    <c:when test="${imageUrl.startsWith('http://') || imageUrl.startsWith('https://')}">
+                                        <!-- 외부 URL -->
+                                        <img src="${imageUrl}"
+                                             alt="${exercise.name}"
+                                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:when>
+                                    <c:when test="${imageUrl.startsWith('images/')}">
+                                        <!-- 로컬 이미지 경로 -->
+                                        <img src="${pageContext.request.contextPath}/${imageUrl}"
+                                             alt="${exercise.name}"
+                                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <!-- 짧은 URL (https:// 추가) -->
+                                        <img src="https://${imageUrl}"
+                                             alt="${exercise.name}"
+                                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'">
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </c:if>
                         <div class="exercise-name">${exercise.name}</div>
-                        <div class="exercise-info">
-                            <span class="badge badge-bodypart">${exercise.bodyPart}</span>
-                            <span class="badge badge-target">${exercise.target}</span>
-                        </div>
-                        <div class="exercise-info">
-                            <span class="badge badge-equipment">${exercise.equipment}</span>
-                        </div>
-                        <c:if test="${not empty exercise.difficulty}">
+                        <c:if test="${not empty exercise.primaryMuscles}">
                             <div class="exercise-info">
-                                <strong>DIFFICULTY:</strong> ${exercise.difficulty}
+                                <strong>PRIMARY MUSCLES:</strong>
+                                <c:forEach var="muscle" items="${exercise.primaryMuscles}" varStatus="status">
+                                    <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="badge badge-target">${muscle}</a><c:if test="${!status.last}">, </c:if>
+                                </c:forEach>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty exercise.secondaryMuscles}">
+                            <div class="exercise-info">
+                                <strong>SECONDARY MUSCLES:</strong>
+                                <c:forEach var="muscle" items="${exercise.secondaryMuscles}" varStatus="status">
+                                    <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="badge badge-bodypart">${muscle}</a><c:if test="${!status.last}">, </c:if>
+                                </c:forEach>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty exercise.level}">
+                            <div class="exercise-info">
+                                <strong>LEVEL:</strong> <span class="badge badge-equipment">${exercise.level}</span>
                             </div>
                         </c:if>
                         <a href="${pageContext.request.contextPath}/exercises?action=detail&id=${exercise.id}" class="detail-button">

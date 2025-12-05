@@ -35,7 +35,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
   <div class="grid-container">
     <div class="category-grid" id="bodyGrid-all">
       <c:forEach var="item" items="${bodyParts}">
-        <div class="category-item">
+        <div class="category-item" data-search-name="${item.name}">
           <div class="category-icon">${item.icon}</div>
           <div class="category-name">${item.name}</div>
         </div>
@@ -96,7 +96,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     <!-- ALL Grid -->
     <div class="category-grid" id="sportsGrid-all">
       <c:forEach var="item" items="${sports}">
-        <div class="category-item">
+        <div class="category-item" data-search-name="${item.name}">
           <div class="category-icon">${item.icon}</div>
           <div class="category-name">${item.name}</div>
         </div>
@@ -107,7 +107,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     <div class="category-grid" id="sportsGrid-water">
       <c:forEach var="item" items="${sports}">
         <c:if test="${item.category == 'water'}">
-          <div class="category-item">
+          <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
             <div class="category-name">${item.name}</div>
           </div>
@@ -119,7 +119,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     <div class="category-grid" id="sportsGrid-ground">
       <c:forEach var="item" items="${sports}">
         <c:if test="${item.category == 'ground'}">
-          <div class="category-item">
+          <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
             <div class="category-name">${item.name}</div>
           </div>
@@ -131,7 +131,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     <div class="category-grid" id="sportsGrid-home">
       <c:forEach var="item" items="${sports}">
         <c:if test="${item.category == 'home'}">
-          <div class="category-item">
+          <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
             <div class="category-name">${item.name}</div>
           </div>
@@ -143,79 +143,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     <div class="category-grid" id="sportsGrid-etc">
       <c:forEach var="item" items="${sports}">
         <c:if test="${item.category == 'etc'}">
-          <div class="category-item">
-            <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
-          </div>
-        </c:if>
-      </c:forEach>
-    </div>
-  </div>
-</section>
-
-<!-- MACHINE Section -->
-<section class="category-section">
-  <h2 class="category-header">MACHINE</h2>
-
-  <!-- Radio buttons for tabs -->
-  <input
-    type="radio"
-    id="machine-all"
-    name="machine-tab"
-    class="tab-radio"
-    checked
-  />
-  <input type="radio" id="machine-upper" name="machine-tab" class="tab-radio" />
-  <input type="radio" id="machine-lower" name="machine-tab" class="tab-radio" />
-  <input type="radio" id="machine-etc" name="machine-tab" class="tab-radio" />
-
-  <div class="category-tabs">
-    <label for="machine-all" class="category-tab">ALL</label>
-    <label for="machine-upper" class="category-tab">UPPER</label>
-    <label for="machine-lower" class="category-tab">LOWER</label>
-    <label for="machine-etc" class="category-tab">ETC</label>
-  </div>
-
-  <div class="grid-container">
-    <!-- ALL Grid -->
-    <div class="category-grid" id="machineGrid-all">
-      <c:forEach var="item" items="${machines}">
-        <div class="category-item">
-          <div class="category-icon">${item.icon}</div>
-          <div class="category-name">${item.name}</div>
-        </div>
-      </c:forEach>
-    </div>
-
-    <!-- UPPER Grid -->
-    <div class="category-grid" id="machineGrid-upper">
-      <c:forEach var="item" items="${machines}">
-        <c:if test="${item.category == 'upper'}">
-          <div class="category-item">
-            <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
-          </div>
-        </c:if>
-      </c:forEach>
-    </div>
-
-    <!-- LOWER Grid -->
-    <div class="category-grid" id="machineGrid-lower">
-      <c:forEach var="item" items="${machines}">
-        <c:if test="${item.category == 'lower'}">
-          <div class="category-item">
-            <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
-          </div>
-        </c:if>
-      </c:forEach>
-    </div>
-
-    <!-- ETC Grid -->
-    <div class="category-grid" id="machineGrid-etc">
-      <c:forEach var="item" items="${machines}">
-        <c:if test="${item.category == 'etc'}">
-          <div class="category-item">
+          <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
             <div class="category-name">${item.name}</div>
           </div>
@@ -245,41 +173,50 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 </section>
 <script>
 window.addEventListener('load', function() {
-    // 폼과 히든 인풋 요소 가져오기
     const form = document.getElementById('muscleForm');
     const hiddenInput = document.getElementById('hidden-q');
-    
-    // 모든 object 태그 선택
-    const svgObjects = document.querySelectorAll('.muscle-obj');
 
-    svgObjects.forEach(obj => {
-        // SVG 내부 문서 접근 (반드시 load 이벤트 안에서 실행)
-        const svgDoc = obj.contentDocument;
+    const setupSvgInteractions = (svgObject) => {
+        svgObject.onload = function() {
+            const svgDoc = svgObject.contentDocument;
+            if (svgDoc) {
+                const muscles = svgDoc.querySelectorAll('.muscle');
+                muscles.forEach(muscle => {
+                    muscle.style.cursor = 'pointer';
+                    muscle.addEventListener('click', function() {
+                        // Assuming English for now as lang-en checkbox is not found
+                        // If language selection is needed, it must be added to the JSP
+                        const muscleName = this.dataset.valueE; // Use English value by default
 
-        if (svgDoc) {
-            // SVG 내부의 모든 근육 그룹(.muscle) 선택
-            const muscles = svgDoc.querySelectorAll('.muscle');
-
-            muscles.forEach(muscle => {
-                // 마우스 커서 포인터로 변경 (UX 향상)
-                muscle.style.cursor = 'pointer';
-
-                // 클릭 이벤트 연결
-                muscle.addEventListener('click', function() {
-                    // 1. 언어 선택 확인 (EN/KR)
-                    const isEnglish = document.getElementById('lang-en').checked;
-
-                    // 2. 선택된 언어에 따라 영문 또는 한글 이름 사용
-                    const muscleName = isEnglish ? this.dataset.valueE : this.dataset.valueK;
-
-                    // 3. input name="q" 에 값 넣기
-                    hiddenInput.value = muscleName;
-
-                    // 4. 폼 강제 제출
-                    form.submit();
+                        hiddenInput.value = muscleName;
+                        form.submit();
+                    });
                 });
-            });
+            } else {
+                console.error('Failed to load SVG document for:', svgObject.id);
+            }
+        };
+        // If the SVG is already loaded (e.g. from cache), onload might not fire.
+        // So, trigger it manually if contentDocument is already available.
+        if (svgObject.contentDocument) {
+            svgObject.onload();
         }
+    };
+
+    document.querySelectorAll('.muscle-obj').forEach(setupSvgInteractions);
+
+    // ========================================
+    // bodyParts와 sports category-item 클릭 이벤트 추가
+    // ========================================
+    const categoryItems = document.querySelectorAll('.category-item[data-search-name]');
+
+    categoryItems.forEach(item => {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function() {
+            const searchName = this.dataset.searchName;
+            hiddenInput.value = searchName;
+            form.submit();
+        });
     });
 });
 </script>

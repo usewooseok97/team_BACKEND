@@ -12,14 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDAO {
+    private static final String COLLECTION_NAME = "exercises";
     private static ExerciseDAO instance = new ExerciseDAO();
     private MongoCollection<Document> collection;
 
     private ExerciseDAO() {
         try {
             MongoDatabase database = MongoConn.getDatabase();
-            collection = database.getCollection("exercises");
-            System.out.println("ExerciseDAO initialized successfully");
+            collection = database.getCollection(COLLECTION_NAME);
+            System.out.println("ExerciseDAO initialized successfully with collection: " + COLLECTION_NAME);
         } catch (Exception e) {
             System.err.println("ExerciseDAO initialization failed: " + e.getMessage());
             e.printStackTrace();
@@ -35,15 +36,9 @@ public class ExerciseDAO {
             Document doc = new Document()
                     .append("id", exercise.getId())
                     .append("name", exercise.getName())
-                    .append("bodyPart", exercise.getBodyPart())
-                    .append("target", exercise.getTarget())
-                    .append("equipment", exercise.getEquipment())
+                    .append("primaryMuscles", exercise.getPrimaryMuscles())
                     .append("secondaryMuscles", exercise.getSecondaryMuscles())
-                    .append("instructions", exercise.getInstructions())
-                    .append("description", exercise.getDescription())
-                    .append("difficulty", exercise.getDifficulty())
-                    .append("category", exercise.getCategory())
-                    .append("gifUrl", exercise.getGifUrl());
+                    .append("level", exercise.getLevel());
 
             collection.insertOne(doc);
             return true;
@@ -61,15 +56,9 @@ public class ExerciseDAO {
                 Document doc = new Document()
                         .append("id", exercise.getId())
                         .append("name", exercise.getName())
-                        .append("bodyPart", exercise.getBodyPart())
-                        .append("target", exercise.getTarget())
-                        .append("equipment", exercise.getEquipment())
+                        .append("primaryMuscles", exercise.getPrimaryMuscles())
                         .append("secondaryMuscles", exercise.getSecondaryMuscles())
-                        .append("instructions", exercise.getInstructions())
-                        .append("description", exercise.getDescription())
-                        .append("difficulty", exercise.getDifficulty())
-                        .append("category", exercise.getCategory())
-                        .append("gifUrl", exercise.getGifUrl());
+                        .append("level", exercise.getLevel());
                 documents.add(doc);
             }
             collection.insertMany(documents);
@@ -108,49 +97,33 @@ public class ExerciseDAO {
         return exercises;
     }
 
-    public List<ExerciseDTO> findByTarget(String target) {
+    public List<ExerciseDTO> findByPrimaryMuscle(String muscle) {
         List<ExerciseDTO> exercises = new ArrayList<>();
         try {
-            for (Document doc : collection.find(Filters.eq("target", target))) {
+            for (Document doc : collection.find(Filters.eq("primaryMuscles", muscle))) {
                 ExerciseDTO exercise = documentToDTO(doc);
                 if (exercise != null) {
                     exercises.add(exercise);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error finding exercises by target: " + e.getMessage());
+            System.err.println("Error finding exercises by primary muscle: " + e.getMessage());
             e.printStackTrace();
         }
         return exercises;
     }
 
-    public List<ExerciseDTO> findByBodyPart(String bodyPart) {
+    public List<ExerciseDTO> findByLevel(String level) {
         List<ExerciseDTO> exercises = new ArrayList<>();
         try {
-            for (Document doc : collection.find(Filters.eq("bodyPart", bodyPart))) {
+            for (Document doc : collection.find(Filters.eq("level", level))) {
                 ExerciseDTO exercise = documentToDTO(doc);
                 if (exercise != null) {
                     exercises.add(exercise);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error finding exercises by bodyPart: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return exercises;
-    }
-
-    public List<ExerciseDTO> findByEquipment(String equipment) {
-        List<ExerciseDTO> exercises = new ArrayList<>();
-        try {
-            for (Document doc : collection.find(Filters.eq("equipment", equipment))) {
-                ExerciseDTO exercise = documentToDTO(doc);
-                if (exercise != null) {
-                    exercises.add(exercise);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error finding exercises by equipment: " + e.getMessage());
+            System.err.println("Error finding exercises by level: " + e.getMessage());
             e.printStackTrace();
         }
         return exercises;
@@ -176,11 +149,12 @@ public class ExerciseDAO {
     public List<ExerciseDTO> findByMultipleFields(String keyword) {
         List<ExerciseDTO> exercises = new ArrayList<>();
         try {
-            // name, bodyPart, target 중 하나라도 일치하면 반환 (대소문자 구분 없이)
+            // name, primaryMuscles, secondaryMuscles, level 중 하나라도 일치하면 반환 (대소문자 구분 없이)
             org.bson.conversions.Bson filter = Filters.or(
                 Filters.regex("name", ".*" + keyword + ".*", "i"),
-                Filters.regex("bodyPart", ".*" + keyword + ".*", "i"),
-                Filters.regex("target", ".*" + keyword + ".*", "i")
+                Filters.regex("primaryMuscles", ".*" + keyword + ".*", "i"),
+                Filters.regex("secondaryMuscles", ".*" + keyword + ".*", "i"),
+                Filters.regex("level", ".*" + keyword + ".*", "i")
             );
 
             for (Document doc : collection.find(filter)) {
@@ -200,15 +174,9 @@ public class ExerciseDAO {
         try {
             Document doc = new Document()
                     .append("name", exercise.getName())
-                    .append("bodyPart", exercise.getBodyPart())
-                    .append("target", exercise.getTarget())
-                    .append("equipment", exercise.getEquipment())
+                    .append("primaryMuscles", exercise.getPrimaryMuscles())
                     .append("secondaryMuscles", exercise.getSecondaryMuscles())
-                    .append("instructions", exercise.getInstructions())
-                    .append("description", exercise.getDescription())
-                    .append("difficulty", exercise.getDifficulty())
-                    .append("category", exercise.getCategory())
-                    .append("gifUrl", exercise.getGifUrl());
+                    .append("level", exercise.getLevel());
 
             collection.updateOne(Filters.eq("id", exercise.getId()), new Document("$set", doc));
             return true;
@@ -251,18 +219,7 @@ public class ExerciseDAO {
         }
     }
 
-    public boolean updateGifUrl(String exerciseId, String gifUrl) {
-        try {
-            Document updateDoc = new Document("$set", new Document("gifUrl", gifUrl));
-            collection.updateOne(Filters.eq("id", exerciseId), updateDoc);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error updating gifUrl for exercise: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     private ExerciseDTO documentToDTO(Document doc) {
         if (doc == null) {
             return null;
@@ -271,15 +228,10 @@ public class ExerciseDAO {
         ExerciseDTO exercise = new ExerciseDTO();
         exercise.setId(doc.getString("id"));
         exercise.setName(doc.getString("name"));
-        exercise.setBodyPart(doc.getString("bodyPart"));
-        exercise.setTarget(doc.getString("target"));
-        exercise.setEquipment(doc.getString("equipment"));
+        exercise.setPrimaryMuscles((List<String>) doc.get("primaryMuscles"));
         exercise.setSecondaryMuscles((List<String>) doc.get("secondaryMuscles"));
-        exercise.setInstructions((List<String>) doc.get("instructions"));
-        exercise.setDescription(doc.getString("description"));
-        exercise.setDifficulty(doc.getString("difficulty"));
-        exercise.setCategory(doc.getString("category"));
-        exercise.setGifUrl(doc.getString("gifUrl"));
+        // images는 images 테이블에서 별도 조회
+        exercise.setLevel(doc.getString("level"));
 
         return exercise;
     }

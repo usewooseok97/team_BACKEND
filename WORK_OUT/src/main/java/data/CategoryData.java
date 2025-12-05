@@ -15,19 +15,18 @@ public class CategoryData {
      */
     public static List<CategoryItem> getBodyParts() {
         List<CategoryItem> bodyParts = new ArrayList<>();
-        bodyParts.add(new CategoryItem("Triceps", "💪", "upper"));
-        bodyParts.add(new CategoryItem("Chest", "🦾", "upper"));
-        bodyParts.add(new CategoryItem("Biceps", "💪", "upper"));
-        bodyParts.add(new CategoryItem("Hamstrings", "🦵", "lower"));
-        bodyParts.add(new CategoryItem("Abs", "🔥", "upper"));
-        bodyParts.add(new CategoryItem("Back", "🏋️", "upper"));
-        bodyParts.add(new CategoryItem("Quads", "🦵", "lower"));
-        bodyParts.add(new CategoryItem("Glutes", "🍑", "lower"));
-        bodyParts.add(new CategoryItem("Shoulders", "💪", "upper"));
-        bodyParts.add(new CategoryItem("Trapezius", "🦾", "upper"));
-        bodyParts.add(new CategoryItem("Forearms", "💪", "upper"));
-        bodyParts.add(new CategoryItem("Adductors", "🦵", "lower"));
-        bodyParts.add(new CategoryItem("Abductors", "🦵", "lower"));
+        bodyParts.add(new CategoryItem("triceps", "💪", "upper"));
+        bodyParts.add(new CategoryItem("chest", "🏋️", "upper"));
+        bodyParts.add(new CategoryItem("biceps", "💪", "upper"));
+        bodyParts.add(new CategoryItem("hamstrings", "🦵", "lower"));
+        bodyParts.add(new CategoryItem("abdominals", "王", "upper"));
+        bodyParts.add(new CategoryItem("back", "🏋️", "upper"));
+        bodyParts.add(new CategoryItem("lats", "🏋️", "upper"));
+        bodyParts.add(new CategoryItem("quadriceps", "🦵", "lower"));
+        bodyParts.add(new CategoryItem("glutes", "💪", "upper"));
+        bodyParts.add(new CategoryItem("shoulders", "💪", "upper"));
+        bodyParts.add(new CategoryItem("forearms", "💪", "upper"));
+        bodyParts.add(new CategoryItem("adductors", "🦵", "lower"));
         return bodyParts;
     }
 

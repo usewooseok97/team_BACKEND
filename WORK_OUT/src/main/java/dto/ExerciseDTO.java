@@ -5,33 +5,22 @@ import java.util.List;
 public class ExerciseDTO {
     private String id;
     private String name;
-    private String bodyPart;
-    private String target;
-    private String equipment;
+    private List<String> primaryMuscles;
     private List<String> secondaryMuscles;
-    private List<String> instructions;
-    private String description;
-    private String difficulty;
-    private String category;
-    private String gifUrl;
+    private List<String> images;
+    private String level;
 
     public ExerciseDTO() {
     }
 
-    public ExerciseDTO(String id, String name, String bodyPart, String target, String equipment,
-                       List<String> secondaryMuscles, List<String> instructions, String description,
-                       String difficulty, String category, String gifUrl) {
+    public ExerciseDTO(String id, String name, List<String> primaryMuscles,
+                       List<String> secondaryMuscles, List<String> images, String level) {
         this.id = id;
         this.name = name;
-        this.bodyPart = bodyPart;
-        this.target = target;
-        this.equipment = equipment;
+        this.primaryMuscles = primaryMuscles;
         this.secondaryMuscles = secondaryMuscles;
-        this.instructions = instructions;
-        this.description = description;
-        this.difficulty = difficulty;
-        this.category = category;
-        this.gifUrl = gifUrl;
+        this.images = images;
+        this.level = level;
     }
 
     public String getId() {
@@ -50,28 +39,12 @@ public class ExerciseDTO {
         this.name = name;
     }
 
-    public String getBodyPart() {
-        return bodyPart;
+    public List<String> getPrimaryMuscles() {
+        return primaryMuscles;
     }
 
-    public void setBodyPart(String bodyPart) {
-        this.bodyPart = bodyPart;
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public String getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(String equipment) {
-        this.equipment = equipment;
+    public void setPrimaryMuscles(List<String> primaryMuscles) {
+        this.primaryMuscles = primaryMuscles;
     }
 
     public List<String> getSecondaryMuscles() {
@@ -82,44 +55,20 @@ public class ExerciseDTO {
         this.secondaryMuscles = secondaryMuscles;
     }
 
-    public List<String> getInstructions() {
-        return instructions;
+    public List<String> getImages() {
+        return images;
     }
 
-    public void setInstructions(List<String> instructions) {
-        this.instructions = instructions;
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
-    public String getDescription() {
-        return description;
+    public String getLevel() {
+        return level;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(String difficulty) {
-        this.difficulty = difficulty;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getGifUrl() {
-        return gifUrl;
-    }
-
-    public void setGifUrl(String gifUrl) {
-        this.gifUrl = gifUrl;
+    public void setLevel(String level) {
+        this.level = level;
     }
 
     @Override
@@ -127,11 +76,10 @@ public class ExerciseDTO {
         return "ExerciseDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", bodyPart='" + bodyPart + '\'' +
-                ", target='" + target + '\'' +
-                ", equipment='" + equipment + '\'' +
-                ", difficulty='" + difficulty + '\'' +
-                ", category='" + category + '\'' +
+                ", primaryMuscles=" + primaryMuscles +
+                ", secondaryMuscles=" + secondaryMuscles +
+                ", images=" + images +
+                ", level='" + level + '\'' +
                 '}';
     }
 }
