@@ -12,24 +12,25 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 	<div class="hero-search">
 	  <form action="${pageContext.request.contextPath}/exercises" method="get">
 	    <input type="hidden" name="action" value="search">
-	    <input type="text" name="q" placeholder="ex&#41; biceps, triceps, chest" />
-	    <!-- 돋보기를 버튼 안으로 이동 -->
+	    <input type="text" name="q" 
+	           placeholder="${lang == 'ko' ? '예) 이두근, 삼두근, 가슴' : 'ex) biceps, triceps, chest'}" />
 	    <button type="submit">🔍</button>
 	  </form>
 	</div>
 </section>
+
 <!-- BODY Section -->
 <section class="category-section">
-  <h2 class="category-header">BODY</h2>
+  <h2 class="category-header">${lang == 'ko' ? '신체 부위' : 'BODY'}</h2>
 
   <input type="radio" id="body-all" name="body-tab" class="tab-radio" checked />
   <input type="radio" id="body-upper" name="body-tab" class="tab-radio" />
   <input type="radio" id="body-lower" name="body-tab" class="tab-radio" />
 
   <div class="category-tabs">
-    <label for="body-all" class="category-tab">ALL</label>
-    <label for="body-upper" class="category-tab">UPPER</label>
-    <label for="body-lower" class="category-tab">LOWER</label>
+    <label for="body-all" class="category-tab">${lang == 'ko' ? '전체' : 'ALL'}</label>
+    <label for="body-upper" class="category-tab">${lang == 'ko' ? '상체' : 'UPPER'}</label>
+    <label for="body-lower" class="category-tab">${lang == 'ko' ? '하체' : 'LOWER'}</label>
   </div>
 
   <div class="grid-container">
@@ -37,11 +38,11 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
       <c:forEach var="item" items="${bodyParts}">
         <div class="category-item" data-search-name="${item.name}">
           <div class="category-icon">${item.icon}</div>
-          <div class="category-name">${item.name}</div>
+          <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
         </div>
       </c:forEach>
     </div>
-    </div>
+  </div>
 
 	<div class="svg-container">
 	    <form id="muscleForm" action="${pageContext.request.contextPath}/exercises" method="get">
@@ -65,31 +66,24 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 	        ></object>
 	    </form>
 	  </div>
-  </section>
+</section>
 
 <!-- SPORTS Section -->
 <section class="category-section">
-  <h2 class="category-header">SPORTS</h2>
+  <h2 class="category-header">${lang == 'ko' ? '스포츠' : 'SPORTS'}</h2>
 
-  <!-- Radio buttons for tabs -->
-  <input
-    type="radio"
-    id="sports-all"
-    name="sports-tab"
-    class="tab-radio"
-    checked
-  />
+  <input type="radio" id="sports-all" name="sports-tab" class="tab-radio" checked />
   <input type="radio" id="sports-water" name="sports-tab" class="tab-radio" />
   <input type="radio" id="sports-ground" name="sports-tab" class="tab-radio" />
   <input type="radio" id="sports-home" name="sports-tab" class="tab-radio" />
   <input type="radio" id="sports-etc" name="sports-tab" class="tab-radio" />
 
   <div class="category-tabs">
-    <label for="sports-all" class="category-tab">ALL</label>
-    <label for="sports-water" class="category-tab">WATER</label>
-    <label for="sports-ground" class="category-tab">GROUND</label>
-    <label for="sports-home" class="category-tab">HOME</label>
-    <label for="sports-etc" class="category-tab">ETC</label>
+    <label for="sports-all" class="category-tab">${lang == 'ko' ? '전체' : 'ALL'}</label>
+    <label for="sports-water" class="category-tab">${lang == 'ko' ? '수상' : 'WATER'}</label>
+    <label for="sports-ground" class="category-tab">${lang == 'ko' ? '지상' : 'GROUND'}</label>
+    <label for="sports-home" class="category-tab">${lang == 'ko' ? '홈' : 'HOME'}</label>
+    <label for="sports-etc" class="category-tab">${lang == 'ko' ? '기타' : 'ETC'}</label>
   </div>
 
   <div class="grid-container">
@@ -98,7 +92,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
       <c:forEach var="item" items="${sports}">
         <div class="category-item" data-search-name="${item.name}">
           <div class="category-icon">${item.icon}</div>
-          <div class="category-name">${item.name}</div>
+          <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
         </div>
       </c:forEach>
     </div>
@@ -109,7 +103,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
         <c:if test="${item.category == 'water'}">
           <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
+            <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
           </div>
         </c:if>
       </c:forEach>
@@ -121,7 +115,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
         <c:if test="${item.category == 'ground'}">
           <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
+            <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
           </div>
         </c:if>
       </c:forEach>
@@ -133,7 +127,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
         <c:if test="${item.category == 'home'}">
           <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
+            <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
           </div>
         </c:if>
       </c:forEach>
@@ -145,7 +139,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
         <c:if test="${item.category == 'etc'}">
           <div class="category-item" data-search-name="${item.name}">
             <div class="category-icon">${item.icon}</div>
-            <div class="category-name">${item.name}</div>
+            <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
           </div>
         </c:if>
       </c:forEach>
@@ -155,7 +149,7 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
 
 <!-- Products Section -->
 <section class="products-section">
-  <h2 class="section-title">Today's Discount</h2>
+  <h2 class="section-title">${lang == 'ko' ? '오늘의 할인' : 'Today\'s Discount'}</h2>
   <div class="products-grid">
     <c:forEach var="product" items="${products}">
       <div class="product-card">
@@ -171,33 +165,32 @@ pageContext.setAttribute("products",CategoryData.getProducts()); %>
     </c:forEach>
   </div>
 </section>
+
 <script>
 window.addEventListener('load', function() {
-    const form = document.getElementById('muscleForm');
-    const hiddenInput = document.getElementById('hidden-q');
+    var form = document.getElementById('muscleForm');
+    var hiddenInput = document.getElementById('hidden-q');
+    var currentLang = '${lang}';
 
-    const setupSvgInteractions = (svgObject) => {
+    var setupSvgInteractions = function(svgObject) {
         svgObject.onload = function() {
-            const svgDoc = svgObject.contentDocument;
+            var svgDoc = svgObject.contentDocument;
             if (svgDoc) {
-                const muscles = svgDoc.querySelectorAll('.muscle');
-                muscles.forEach(muscle => {
+                var muscles = svgDoc.querySelectorAll('.muscle');
+                muscles.forEach(function(muscle) {
                     muscle.style.cursor = 'pointer';
                     muscle.addEventListener('click', function() {
-                        // Assuming English for now as lang-en checkbox is not found
-                        // If language selection is needed, it must be added to the JSP
-                        const muscleName = this.dataset.valueE; // Use English value by default
+                        var muscleName = currentLang === 'ko' 
+                            ? (this.dataset.valueK || this.dataset.valueE)
+                            : this.dataset.valueE;
 
                         hiddenInput.value = muscleName;
                         form.submit();
                     });
                 });
-            } else {
-                console.error('Failed to load SVG document for:', svgObject.id);
             }
         };
-        // If the SVG is already loaded (e.g. from cache), onload might not fire.
-        // So, trigger it manually if contentDocument is already available.
+        
         if (svgObject.contentDocument) {
             svgObject.onload();
         }
@@ -205,16 +198,12 @@ window.addEventListener('load', function() {
 
     document.querySelectorAll('.muscle-obj').forEach(setupSvgInteractions);
 
-    // ========================================
-    // bodyParts와 sports category-item 클릭 이벤트 추가
-    // ========================================
-    const categoryItems = document.querySelectorAll('.category-item[data-search-name]');
+    var categoryItems = document.querySelectorAll('.category-item[data-search-name]');
 
-    categoryItems.forEach(item => {
+    categoryItems.forEach(function(item) {
         item.style.cursor = 'pointer';
         item.addEventListener('click', function() {
-            const searchName = this.dataset.searchName;
-            hiddenInput.value = searchName;
+            hiddenInput.value = this.dataset.searchName;
             form.submit();
         });
     });
