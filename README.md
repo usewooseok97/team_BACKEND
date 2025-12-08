@@ -149,7 +149,7 @@ WORK_OUT/
 #### 7. Footer
 - 정책 링크 (Privacy Policy, Terms of Service, Medical Disclaimer, Cookie Policy)
 - 의료 면책 조항
-- 저작권 정보 (© 2023 2조 강우석 이준영 조윤재)
+- 저작권 정보 (© 2025 2조 강우석 이준영 조윤재)
 
 ## index.jsp 현재 구현 내용
 
