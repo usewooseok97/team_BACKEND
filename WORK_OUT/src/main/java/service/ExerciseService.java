@@ -184,77 +184,170 @@ public class ExerciseService {
     }
 
     /**
-     * DB에서 모든 운동 목록 조회
+     * DB에서 모든 운동 목록 조회 (기본값: 영어)
      */
     public List<ExerciseDTO> getAllExercises() {
-        List<ExerciseDTO> exercises = exerciseDAO.findAll();
-        setExercisesImages(exercises);
+        return getAllExercises("en");
+    }
+
+    /**
+     * DB에서 모든 운동 목록 조회 (언어별)
+     */
+    public List<ExerciseDTO> getAllExercises(String language) {
+        List<ExerciseDTO> exercises = exerciseDAO.findAll(language);
+        setExercisesImages(exercises, language);
         return exercises;
     }
 
     /**
-     * DB에서 특정 운동의 요약 정보 조회
+     * DB에서 모든 운동 목록 조회 (언어별, 페이지네이션 지원)
+     * @param language 언어 코드
+     * @param page 페이지 번호
+     * @param pageSize 페이지당 항목 수
+     * @return 해당 페이지의 운동 목록
+     */
+    public List<ExerciseDTO> getAllExercises(String language, int page, int pageSize) {
+        List<ExerciseDTO> exercises = exerciseDAO.findAll(language, page, pageSize);
+        setExercisesImages(exercises, language);
+        return exercises;
+    }
+
+    /**
+     * DB에서 특정 운동의 요약 정보 조회 (기본값: 영어)
      */
     public ExerciseDTO getExerciseById(String id) {
-        ExerciseDTO exercise = exerciseDAO.findById(id);
+        return getExerciseById(id, "en");
+    }
+
+    /**
+     * DB에서 특정 운동의 요약 정보 조회 (언어별)
+     */
+    public ExerciseDTO getExerciseById(String id, String language) {
+        ExerciseDTO exercise = exerciseDAO.findById(id, language);
         if (exercise != null) {
-            setExerciseImages(exercise);
+            setExerciseImages(exercise, language);
         }
         return exercise;
     }
 
     /**
-     * DB에서 특정 운동의 상세 정보 조회
+     * DB에서 특정 운동의 상세 정보 조회 (기본값: 영어)
      */
     public ExerciseDetailDTO getExerciseDetailById(String id) {
-        ExerciseDetailDTO exerciseDetail = exerciseDetailDAO.findById(id);
+        return getExerciseDetailById(id, "en");
+    }
+
+    /**
+     * DB에서 특정 운동의 상세 정보 조회 (언어별)
+     */
+    public ExerciseDetailDTO getExerciseDetailById(String id, String language) {
+        ExerciseDetailDTO exerciseDetail = exerciseDetailDAO.findById(id, language);
         if (exerciseDetail != null) {
-            setExerciseDetailImages(exerciseDetail);
+            setExerciseDetailImages(exerciseDetail, language);
         }
         return exerciseDetail;
     }
 
     /**
-     * 운동 이름으로 검색
+     * 운동 이름으로 검색 (기본값: 영어)
      */
     public List<ExerciseDTO> searchByName(String keyword) {
+        return searchByName(keyword, "en");
+    }
+
+    /**
+     * 운동 이름으로 검색 (언어별)
+     */
+    public List<ExerciseDTO> searchByName(String keyword, String language) {
         List<ExerciseDTO> exercises = exerciseDAO.findByNameContaining(keyword);
-        setExercisesImages(exercises);
+        setExercisesImages(exercises, language);
         return exercises;
     }
 
     /**
-     * 여러 필드에서 검색
+     * 여러 필드에서 검색 (기본값: 영어)
      */
     public List<ExerciseDTO> searchByMultipleFields(String keyword) {
-        List<ExerciseDTO> exercises = exerciseDAO.findByMultipleFields(keyword);
-        setExercisesImages(exercises);
+        return searchByMultipleFields(keyword, "en");
+    }
+
+    /**
+     * 여러 필드에서 검색 (언어별)
+     */
+    public List<ExerciseDTO> searchByMultipleFields(String keyword, String language) {
+        List<ExerciseDTO> exercises = exerciseDAO.findByMultipleFields(keyword, language);
+        setExercisesImages(exercises, language);
         return exercises;
     }
 
     /**
-     * Primary muscle로 필터링
+     * 여러 필드에서 검색 (언어별, 페이지네이션 지원)
+     * @param keyword 검색어
+     * @param language 언어 코드
+     * @param page 페이지 번호
+     * @param pageSize 페이지당 항목 수
+     * @return 해당 페이지의 검색 결과
+     */
+    public List<ExerciseDTO> searchByMultipleFields(String keyword, String language, int page, int pageSize) {
+        List<ExerciseDTO> exercises = exerciseDAO.findByMultipleFields(keyword, language, page, pageSize);
+        setExercisesImages(exercises, language);
+        return exercises;
+    }
+
+    /**
+     * 검색 결과 총 개수 반환
+     * @param keyword 검색어
+     * @param language 언어 코드
+     * @return 검색 결과 총 개수
+     */
+    public long getSearchResultCount(String keyword, String language) {
+        return exerciseDAO.countByMultipleFields(keyword, language);
+    }
+
+    /**
+     * Primary muscle로 필터링 (기본값: 영어)
      */
     public List<ExerciseDTO> getExercisesByPrimaryMuscle(String muscle) {
-        List<ExerciseDTO> exercises = exerciseDAO.findByPrimaryMuscle(muscle);
-        setExercisesImages(exercises);
+        return getExercisesByPrimaryMuscle(muscle, "en");
+    }
+
+    /**
+     * Primary muscle로 필터링 (언어별)
+     */
+    public List<ExerciseDTO> getExercisesByPrimaryMuscle(String muscle, String language) {
+        List<ExerciseDTO> exercises = exerciseDAO.findByPrimaryMuscle(muscle, language);
+        setExercisesImages(exercises, language);
         return exercises;
     }
 
     /**
-     * Level로 필터링
+     * Level로 필터링 (기본값: 영어)
      */
     public List<ExerciseDTO> getExercisesByLevel(String level) {
-        List<ExerciseDTO> exercises = exerciseDAO.findByLevel(level);
-        setExercisesImages(exercises);
+        return getExercisesByLevel(level, "en");
+    }
+
+    /**
+     * Level로 필터링 (언어별)
+     */
+    public List<ExerciseDTO> getExercisesByLevel(String level, String language) {
+        List<ExerciseDTO> exercises = exerciseDAO.findByLevel(level, language);
+        setExercisesImages(exercises, language);
         return exercises;
     }
 
     /**
-     * 운동 개수 조회
+     * 운동 개수 조회 (기본값: 영어)
      */
     public long getExerciseCount() {
-        return exerciseDAO.count();
+        return getExerciseCount("en");
+    }
+
+    /**
+     * 운동 개수 조회 (언어별)
+     */
+    public long getExerciseCount(String language) {
+        return exerciseDAO.count(language);
     }
 
     /**
@@ -268,23 +361,37 @@ public class ExerciseService {
     /**
      * 기존 exerciseDetails 테이블의 데이터를 사용하여 exercises 테이블을 채웁니다
      * API 호출 없이 이미 저장된 상세 데이터에서 요약 정보를 추출합니다
+     * 영어와 한국어 컬렉션을 모두 동기화합니다
      * @param webappPath 웹앱 실제 경로 (이미지 다운로드용, null이면 이미지 다운로드 생략)
      */
     public boolean syncExercisesFromDetails(String webappPath) {
+        boolean enSuccess = syncExercisesFromDetailsForLanguage("en", webappPath);
+        boolean koSuccess = syncExercisesFromDetailsForLanguage("ko", webappPath);
+        return enSuccess && koSuccess;
+    }
+
+    /**
+     * 특정 언어의 exerciseDetails를 사용하여 exercises 테이블을 동기화합니다
+     * @param language 언어 코드 ("en" or "ko")
+     * @param webappPath 웹앱 실제 경로 (이미지 다운로드용, null이면 이미지 다운로드 생략)
+     */
+    private boolean syncExercisesFromDetailsForLanguage(String language, String webappPath) {
         try {
+            System.out.println("Starting sync for language: " + language);
+
             // 1. exerciseDetails 테이블에서 모든 데이터 가져오기
-            List<ExerciseDetailDTO> exerciseDetails = exerciseDetailDAO.findAll();
+            List<ExerciseDetailDTO> exerciseDetails = exerciseDetailDAO.findAll(language);
 
             if (exerciseDetails.isEmpty()) {
-                System.out.println("No exercise details found in exerciseDetails");
+                System.out.println("No exercise details found in exerciseDetails (" + language + ")");
                 return false;
             }
 
-            System.out.println("Found " + exerciseDetails.size() + " exercise details");
+            System.out.println("Found " + exerciseDetails.size() + " exercise details (" + language + ")");
 
             // 2. exercises 테이블 초기화
-            exerciseDAO.deleteAll();
-            System.out.println("Deleted all existing exercises");
+            exerciseDAO.deleteAll(language);
+            System.out.println("Deleted all existing exercises (" + language + ")");
 
             // 3. exerciseDetails에서 exercises 생성 및 이미지 다운로드
             List<ExerciseDTO> exercises = new ArrayList<>();
@@ -325,12 +432,12 @@ public class ExerciseService {
 
                 count++;
                 if (count % 10 == 0) {
-                    System.out.println("Processed " + count + "/" + exerciseDetails.size() + " exercises");
+                    System.out.println("Processed " + count + "/" + exerciseDetails.size() + " exercises (" + language + ")");
                 }
             }
 
             // 4. exercises 테이블에 저장
-            boolean success = exerciseDAO.insertMany(exercises);
+            boolean success = exerciseDAO.insertMany(exercises, language);
 
             // 5. images 테이블에 저장 (upsert 방식)
             if (success) {
@@ -339,31 +446,31 @@ public class ExerciseService {
 
                 for (ImagesDTO imageData : imagesList) {
                     String id = imageData.getId();
-                    ImagesDTO existing = imagesDAO.findById(id);
+                    ImagesDTO existing = imagesDAO.findById(id, language);
 
                     if (existing != null) {
                         // 업데이트
-                        imagesDAO.update(id, imageData);
+                        imagesDAO.update(id, imageData, language);
                         updatedCount++;
                     } else {
                         // 새로 삽입
-                        imagesDAO.insert(imageData);
+                        imagesDAO.insert(imageData, language);
                         insertedCount++;
                     }
                 }
 
-                System.out.println("Images table updated: " + updatedCount + " updated, " + insertedCount + " inserted");
+                System.out.println("Images table updated (" + language + "): " + updatedCount + " updated, " + insertedCount + " inserted");
             }
 
             if (success) {
-                System.out.println("Successfully created " + exercises.size() + " exercises from exerciseDetails");
+                System.out.println("Successfully created " + exercises.size() + " exercises from exerciseDetails (" + language + ")");
                 return true;
             } else {
-                System.err.println("Failed to save exercises");
+                System.err.println("Failed to save exercises (" + language + ")");
                 return false;
             }
         } catch (Exception e) {
-            System.err.println("Error syncing exercises from details: " + e.getMessage());
+            System.err.println("Error syncing exercises from details (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -371,19 +478,33 @@ public class ExerciseService {
 
     /**
      * exerciseDetails의 이미지를 다운로드하여 images 테이블에 저장
+     * 영어와 한국어 컬렉션을 모두 동기화합니다
      * @param webappPath 웹앱 실제 경로 (이미지 다운로드용)
      */
     public boolean syncImagesFromExerciseDetails(String webappPath) {
+        boolean enSuccess = syncImagesFromExerciseDetailsForLanguage("en", webappPath);
+        boolean koSuccess = syncImagesFromExerciseDetailsForLanguage("ko", webappPath);
+        return enSuccess && koSuccess;
+    }
+
+    /**
+     * 특정 언어의 exerciseDetails 이미지를 다운로드하여 images 테이블에 저장
+     * @param language 언어 코드 ("en" or "ko")
+     * @param webappPath 웹앱 실제 경로 (이미지 다운로드용)
+     */
+    private boolean syncImagesFromExerciseDetailsForLanguage(String language, String webappPath) {
         try {
+            System.out.println("Starting image sync for language: " + language);
+
             // 1. exerciseDetails 테이블에서 모든 데이터 가져오기
-            List<ExerciseDetailDTO> exerciseDetails = exerciseDetailDAO.findAll();
+            List<ExerciseDetailDTO> exerciseDetails = exerciseDetailDAO.findAll(language);
 
             if (exerciseDetails.isEmpty()) {
-                System.out.println("No exercise details found");
+                System.out.println("No exercise details found (" + language + ")");
                 return false;
             }
 
-            System.out.println("Found " + exerciseDetails.size() + " exercise details");
+            System.out.println("Found " + exerciseDetails.size() + " exercise details (" + language + ")");
 
             // 2. 이미지 다운로드 및 images 테이블에 저장
             int updatedCount = 0;
@@ -414,27 +535,27 @@ public class ExerciseService {
                 ImagesDTO imageData = new ImagesDTO(id, localImagePaths);
 
                 // 기존 데이터 확인
-                ImagesDTO existing = imagesDAO.findById(id);
+                ImagesDTO existing = imagesDAO.findById(id, language);
                 if (existing != null) {
                     // 업데이트
-                    imagesDAO.update(id, imageData);
+                    imagesDAO.update(id, imageData, language);
                     updatedCount++;
                 } else {
                     // 새로 삽입
-                    imagesDAO.insert(imageData);
+                    imagesDAO.insert(imageData, language);
                     insertedCount++;
                 }
 
                 processedCount++;
                 if (processedCount % 10 == 0) {
-                    System.out.println("Processed " + processedCount + "/" + exerciseDetails.size() + " images");
+                    System.out.println("Processed " + processedCount + "/" + exerciseDetails.size() + " images (" + language + ")");
                 }
             }
 
-            System.out.println("Images sync completed: " + updatedCount + " updated, " + insertedCount + " inserted");
+            System.out.println("Images sync completed (" + language + "): " + updatedCount + " updated, " + insertedCount + " inserted");
             return true;
         } catch (Exception e) {
-            System.err.println("Error syncing images from exerciseDetails: " + e.getMessage());
+            System.err.println("Error syncing images from exerciseDetails (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -498,14 +619,21 @@ public class ExerciseService {
     }
 
     /**
-     * Exercise에 이미지 설정
+     * Exercise에 이미지 설정 (기본값: 영어)
      */
     private void setExerciseImages(ExerciseDTO exercise) {
+        setExerciseImages(exercise, "en");
+    }
+
+    /**
+     * Exercise에 이미지 설정 (언어별)
+     */
+    private void setExerciseImages(ExerciseDTO exercise, String language) {
         if (exercise == null || exercise.getId() == null) {
             return;
         }
 
-        ImagesDTO images = imagesDAO.findById(exercise.getId());
+        ImagesDTO images = imagesDAO.findById(exercise.getId(), language);
 
         if (images != null && images.getImages() != null) {
             exercise.setImages(images.getImages());
@@ -513,14 +641,21 @@ public class ExerciseService {
     }
 
     /**
-     * ExerciseDetail에 이미지 설정
+     * ExerciseDetail에 이미지 설정 (기본값: 영어)
      */
     private void setExerciseDetailImages(ExerciseDetailDTO exerciseDetail) {
+        setExerciseDetailImages(exerciseDetail, "en");
+    }
+
+    /**
+     * ExerciseDetail에 이미지 설정 (언어별)
+     */
+    private void setExerciseDetailImages(ExerciseDetailDTO exerciseDetail, String language) {
         if (exerciseDetail == null || exerciseDetail.getId() == null) {
             return;
         }
 
-        ImagesDTO images = imagesDAO.findById(exerciseDetail.getId());
+        ImagesDTO images = imagesDAO.findById(exerciseDetail.getId(), language);
 
         if (images != null && images.getImages() != null) {
             exerciseDetail.setImages(images.getImages());
@@ -528,15 +663,22 @@ public class ExerciseService {
     }
 
     /**
-     * Exercise 리스트에 이미지 설정
+     * Exercise 리스트에 이미지 설정 (기본값: 영어)
      */
     private void setExercisesImages(List<ExerciseDTO> exercises) {
+        setExercisesImages(exercises, "en");
+    }
+
+    /**
+     * Exercise 리스트에 이미지 설정 (언어별)
+     */
+    private void setExercisesImages(List<ExerciseDTO> exercises, String language) {
         if (exercises == null || exercises.isEmpty()) {
             return;
         }
 
         for (ExerciseDTO exercise : exercises) {
-            setExerciseImages(exercise);
+            setExerciseImages(exercise, language);
         }
     }
 }

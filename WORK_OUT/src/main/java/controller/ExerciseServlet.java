@@ -1,10 +1,10 @@
 package controller;
 
-import dto.AmazonProductDTO;
+import dto.NaverProductDTO;
 import dto.ExerciseDTO;
 import dto.ExerciseDetailDTO;
 import dto.YouTubeVideoDTO;
-import service.AmazonProductService;
+import service.NaverShoppingService;
 import service.ExerciseService;
 import service.YouTubeVideoService;
 
@@ -20,13 +20,13 @@ import java.util.List;
 @WebServlet("/exercises")
 public class ExerciseServlet extends HttpServlet {
     private ExerciseService exerciseService;
-    private AmazonProductService amazonProductService;
+    private NaverShoppingService naverShoppingService;
     private YouTubeVideoService youtubeVideoService;
 
     @Override
     public void init() throws ServletException {
         exerciseService = ExerciseService.getInstance();
-        amazonProductService = AmazonProductService.getInstance();
+        naverShoppingService = NaverShoppingService.getInstance();
         youtubeVideoService = YouTubeVideoService.getInstance();
     }
 
@@ -93,12 +93,35 @@ public class ExerciseServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            List<ExerciseDTO> exercises = exerciseService.getAllExercises();
-            long count = exerciseService.getExerciseCount();
+            String language = getLanguage(request);
+
+            // 페이지네이션 파라미터 처리
+            int page = 1;
+            int pageSize = 18;
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.trim().isEmpty()) {
+                try {
+                    page = Integer.parseInt(pageParam);
+                    if (page < 1) page = 1;
+                } catch (NumberFormatException e) {
+                    page = 1;
+                }
+            }
+
+            // 전체 개수 조회
+            long totalCount = exerciseService.getExerciseCount(language);
+            int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+            // 페이지네이션된 운동 목록 조회
+            List<ExerciseDTO> exercises = exerciseService.getAllExercises(language, page, pageSize);
 
             request.setAttribute("exercises", exercises);
-            request.setAttribute("exerciseCount", count);
-            request.setAttribute("message", "총 " + count + "개의 운동이 있습니다.");
+            request.setAttribute("exerciseCount", exercises.size());
+            request.setAttribute("totalCount", totalCount);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("message", "총 " + totalCount + "개의 운동이 있습니다. (페이지 " + page + "/" + totalPages + ")");
 
             request.getRequestDispatcher("/exercises.jsp").forward(request, response);
         } catch (Exception e) {
@@ -120,7 +143,8 @@ public class ExerciseServlet extends HttpServlet {
         }
 
         try {
-            ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(id);
+            String language = getLanguage(request);  // 언어 가져오기
+            ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(id, language);
 
             if (exerciseDetail != null) {
                 request.setAttribute("exercise", exerciseDetail);
@@ -138,16 +162,16 @@ public class ExerciseServlet extends HttpServlet {
                     request.setAttribute("videoSearchQuery", videoSearchQuery);
                 }
 
-                // Fetch Amazon products based on exercise data
-                String searchQuery = amazonProductService.determineSearchQuery(
+                // Fetch Naver Shopping products based on exercise data
+                String searchQuery = naverShoppingService.determineSearchQuery(
                     exerciseDetail.getEquipment(),
                     exerciseDetail.getName()
                 );
 
                 if (!searchQuery.isEmpty()) {
-                    List<AmazonProductDTO> amazonProducts =
-                        amazonProductService.getProductsFromCombinedQuery(searchQuery, 5);
-                    request.setAttribute("amazonProducts", amazonProducts);
+                    List<NaverProductDTO> naverProducts =
+                        naverShoppingService.getProductsFromCombinedQuery(searchQuery, 5);
+                    request.setAttribute("naverProducts", naverProducts);
                     request.setAttribute("searchQuery", searchQuery);
                 }
 
@@ -208,17 +232,18 @@ public class ExerciseServlet extends HttpServlet {
         }
 
         try {
+            String language = getLanguage(request);  // 언어 가져오기
             List<ExerciseDTO> exercises = null;
 
             switch (filterType) {
                 case "primaryMuscle":
-                    exercises = exerciseService.getExercisesByPrimaryMuscle(filterValue);
+                    exercises = exerciseService.getExercisesByPrimaryMuscle(filterValue, language);
                     break;
                 case "level":
-                    exercises = exerciseService.getExercisesByLevel(filterValue);
+                    exercises = exerciseService.getExercisesByLevel(filterValue, language);
                     break;
                 default:
-                    exercises = exerciseService.getAllExercises();
+                    exercises = exerciseService.getAllExercises(language);
                     break;
             }
 
@@ -295,20 +320,51 @@ public class ExerciseServlet extends HttpServlet {
         }
 
         try {
-            // name, bodyPart, target 모두 검색
-            List<ExerciseDTO> results = exerciseService.searchByMultipleFields(query.trim());
+            String currentLanguage = getLanguage(request);  // 현재 언어
 
+            // 1단계: 현재 언어 DB에서 검색
+            List<ExerciseDTO> results = exerciseService.searchByMultipleFields(query.trim(), currentLanguage);
+
+            boolean languageChanged = false;
+
+            // 2단계: 결과가 없으면 다른 언어 DB에서 재시도
             if (results.isEmpty()) {
+                String alternativeLanguage = "ko".equals(currentLanguage) ? "en" : "ko";
+
+                System.out.println("No results in " + currentLanguage + " DB. Trying " + alternativeLanguage + " DB...");
+
+                results = exerciseService.searchByMultipleFields(query.trim(), alternativeLanguage);
+
+                // 대체 언어에서 결과를 찾으면 언어 자동 전환
+                if (!results.isEmpty()) {
+                    currentLanguage = alternativeLanguage;
+                    request.getSession().setAttribute("language", alternativeLanguage);
+                    languageChanged = true;
+
+                    System.out.println("Found results in " + alternativeLanguage + " DB. Language auto-switched.");
+                }
+            }
+
+            // 3단계: 결과 처리
+            if (results.isEmpty()) {
+                // 양쪽 DB 모두 결과 없음
                 request.setAttribute("searchQuery", query);
                 request.setAttribute("error", "\"" + query + "\"에 대한 검색 결과가 없습니다.");
                 request.getRequestDispatcher("/exercises.jsp").forward(request, response);
+
             } else if (results.size() == 1) {
-                // 검색 결과가 1개면 바로 detail 페이지로
+                // 검색 결과가 1개 → 상세 페이지로 자동 이동
                 ExerciseDTO exercise = results.get(0);
-                ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(exercise.getId());
+                ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(exercise.getId(), currentLanguage);
 
                 if (exerciseDetail != null) {
                     request.setAttribute("exercise", exerciseDetail);
+
+                    // 언어 자동 전환 알림
+                    if (languageChanged) {
+                        String langName = "ko".equals(currentLanguage) ? "한국어" : "영어";
+                        request.setAttribute("message", "검색 결과를 찾기 위해 언어를 " + langName + "로 변경했습니다.");
+                    }
 
                     // Fetch YouTube videos based on exercise data
                     String videoSearchQuery = youtubeVideoService.determineSearchQuery(
@@ -323,16 +379,16 @@ public class ExerciseServlet extends HttpServlet {
                         request.setAttribute("videoSearchQuery", videoSearchQuery);
                     }
 
-                    // Fetch Amazon products based on exercise data
-                    String searchQuery = amazonProductService.determineSearchQuery(
+                    // Fetch Naver Shopping products based on exercise data
+                    String searchQuery = naverShoppingService.determineSearchQuery(
                         exerciseDetail.getEquipment(),
                         exerciseDetail.getName()
                     );
 
                     if (!searchQuery.isEmpty()) {
-                        List<AmazonProductDTO> amazonProducts =
-                            amazonProductService.getProductsFromCombinedQuery(searchQuery, 5);
-                        request.setAttribute("amazonProducts", amazonProducts);
+                        List<NaverProductDTO> naverProducts =
+                            naverShoppingService.getProductsFromCombinedQuery(searchQuery, 5);
+                        request.setAttribute("naverProducts", naverProducts);
                         request.setAttribute("searchQuery", searchQuery);
                     }
 
@@ -341,17 +397,64 @@ public class ExerciseServlet extends HttpServlet {
                     request.setAttribute("error", "운동 상세 정보를 찾을 수 없습니다.");
                     request.getRequestDispatcher("/exercises.jsp").forward(request, response);
                 }
+
             } else {
-                request.setAttribute("exercises", results);
-                request.setAttribute("exerciseCount", results.size());
-                request.setAttribute("message", "\"" + query + "\"에 대한 " + results.size() + "개의 검색 결과");
+                // 검색 결과가 여러 개 → 목록 표시 (페이지네이션 적용)
+                // 페이지네이션 파라미터 처리
+                int page = 1;
+                int pageSize = 18;
+                String pageParam = request.getParameter("page");
+                if (pageParam != null && !pageParam.trim().isEmpty()) {
+                    try {
+                        page = Integer.parseInt(pageParam);
+                        if (page < 1) page = 1;
+                    } catch (NumberFormatException e) {
+                        page = 1;
+                    }
+                }
+
+                // 전체 검색 결과 개수
+                long totalCount = exerciseService.getSearchResultCount(query.trim(), currentLanguage);
+                int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+                // 페이지네이션된 검색 결과 조회
+                List<ExerciseDTO> pagedResults = exerciseService.searchByMultipleFields(query.trim(), currentLanguage, page, pageSize);
+
+                request.setAttribute("exercises", pagedResults);
+                request.setAttribute("exerciseCount", pagedResults.size());
+                request.setAttribute("totalCount", totalCount);
+                request.setAttribute("currentPage", page);
+                request.setAttribute("pageSize", pageSize);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("searchQuery", query);
+
+                // 언어 자동 전환 알림
+                if (languageChanged) {
+                    String langName = "ko".equals(currentLanguage) ? "한국어" : "영어";
+                    request.setAttribute("message",
+                        "검색 결과를 찾기 위해 언어를 " + langName + "로 변경했습니다. \"" + query + "\"에 대한 " + totalCount + "개의 검색 결과 (페이지 " + page + "/" + totalPages + ")");
+                } else {
+                    request.setAttribute("message", "\"" + query + "\"에 대한 " + totalCount + "개의 검색 결과 (페이지 " + page + "/" + totalPages + ")");
+                }
+
                 request.getRequestDispatcher("/exercises.jsp").forward(request, response);
             }
+
         } catch (Exception e) {
             System.err.println("Error searching exercises: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("error", "검색 중 오류가 발생했습니다.");
-            listExercises(request, response);
+            request.getRequestDispatcher("/exercises.jsp").forward(request, response);
         }
+    }
+
+    /**
+     * 세션에서 현재 언어 설정을 가져옵니다.
+     * @param request HTTP 요청 객체
+     * @return 언어 코드 (기본값: "en")
+     */
+    private String getLanguage(HttpServletRequest request) {
+        String language = (String) request.getSession().getAttribute("language");
+        return language != null ? language : "en";  // 기본값: 영어
     }
 }

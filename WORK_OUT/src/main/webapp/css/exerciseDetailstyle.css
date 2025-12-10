@@ -192,7 +192,7 @@
         display: block;
     }
 
-    /* Amazon Products Section */
+    /* Naver Shopping Products Section */
     .product-subtitle {
         color: #666;
         font-size: 14px;
@@ -200,7 +200,7 @@
         font-style: italic;
     }
 
-    .amazon-products-grid {
+    .naver-products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
@@ -244,25 +244,16 @@
         padding: 15px;
     }
 
-    .badge-bestseller, .badge-prime {
+    .badge-mall {
         position: absolute;
         top: 10px;
+        left: 10px;
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 11px;
         font-weight: bold;
-        text-transform: uppercase;
         color: white;
-    }
-
-    .badge-bestseller {
-        left: 10px;
-        background: linear-gradient(135deg, #FF9900 0%, #FF6600 100%);
-    }
-
-    .badge-prime {
-        right: 10px;
-        background: linear-gradient(135deg, #00A8E1 0%, #0066C0 100%);
+        background-color: #03c75a; /* Naver green */
     }
 
     .product-info {
@@ -329,7 +320,7 @@
         background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     }
 
-    .amazon-disclaimer {
+    .naver-disclaimer {
         font-size: 12px;
         color: #999;
         font-style: italic;
@@ -339,7 +330,7 @@
 
     /* Responsive design */
     @media (max-width: 768px) {
-        .amazon-products-grid {
+        .naver-products-grid {
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
         }

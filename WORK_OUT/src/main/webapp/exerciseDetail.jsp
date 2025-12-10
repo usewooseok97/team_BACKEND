@@ -167,42 +167,33 @@
                 </div>
             </c:if>
 
-            <!-- Amazon Products Section -->
-            <c:if test="${not empty amazonProducts}">
+            <!-- Naver Shopping Products Section -->
+            <c:if test="${not empty naverProducts}">
                 <div class="detail-section">
                     <h2 class="section-title">${lang == 'ko' ? '추천 장비' : 'Recommended Equipment'}</h2>
                     <p class="product-subtitle">
                         ${lang == 'ko' ? '"' : 'Related products for "'}${searchQuery}${lang == 'ko' ? '" 관련 상품' : '"'}
                     </p>
 
-                    <div class="amazon-products-grid">
-                        <c:forEach var="product" items="${amazonProducts}">
+                    <div class="naver-products-grid">
+                        <c:forEach var="product" items="${naverProducts}">
                             <a href="${product.url}" target="_blank" rel="noopener noreferrer" class="product-card">
                                 <div class="product-image-wrapper">
                                     <img src="${product.image}"
                                          alt="${product.name}"
                                          class="product-image"
                                          onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
-                                    <c:if test="${product.isBestSeller}">
-                                        <span class="badge-bestseller">${lang == 'ko' ? '베스트셀러' : 'Best Seller'}</span>
-                                    </c:if>
-                                    <c:if test="${product.hasPrime}">
-                                        <span class="badge-prime">Prime</span>
+                                    <c:if test="${not empty product.mallName}">
+                                        <span class="badge-mall">${product.mallName}</span>
                                     </c:if>
                                 </div>
 
                                 <div class="product-info">
                                     <h3 class="product-name">${product.name}</h3>
 
-                                    <div class="product-rating">
-                                        <c:if test="${product.stars > 0}">
-                                            <span class="stars">★ ${product.stars}</span>
-                                        </c:if>
-                                    </div>
-
                                     <div class="product-price">
                                         <c:choose>
-                                            <c:when test="${not empty product.priceString}">
+                                            <c:when test="${product.lprice > 0}">
                                                 <span class="price-value">${product.priceString}</span>
                                             </c:when>
                                             <c:otherwise>
@@ -214,16 +205,16 @@
                                     </div>
 
                                     <div class="product-view-button">
-                                        ${lang == 'ko' ? '아마존에서 보기 →' : 'View on Amazon →'}
+                                        ${lang == 'ko' ? '네이버에서 보기 →' : 'View on Naver →'}
                                     </div>
                                 </div>
                             </a>
                         </c:forEach>
                     </div>
 
-                    <p class="amazon-disclaimer">
-                        ${lang == 'ko' ? '* 상품 정보는 아마존에서 제공됩니다. 가격과 재고는 변동될 수 있습니다.' 
-                                       : '* Product information is provided by Amazon. Prices and availability may vary.'}
+                    <p class="naver-disclaimer">
+                        ${lang == 'ko' ? '* 상품 정보는 네이버 쇼핑에서 제공됩니다. 가격과 재고는 변동될 수 있습니다.'
+                                       : '* Product information is provided by Naver Shopping. Prices and availability may vary.'}
                     </p>
                 </div>
             </c:if>

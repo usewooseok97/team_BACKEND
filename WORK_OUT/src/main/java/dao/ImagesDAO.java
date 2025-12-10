@@ -33,29 +33,54 @@ public class ImagesDAO {
      * 이미지 데이터 삽입
      */
     public boolean insert(ImagesDTO images) {
+        return insert(images, "en");
+    }
+
+    /**
+     * Insert image data into language-specific field
+     * @param images Image data to insert
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean insert(ImagesDTO images, String language) {
+        // 언어에 따라 id 또는 kid 필드로 저장
+        String idField = "ko".equals(language) ? "kid" : "id";
+
         try {
             Document doc = new Document()
-                    .append("id", images.getId())
+                    .append(idField, images.getId())
                     .append("images", images.getImages());
             collection.insertOne(doc);
             return true;
         } catch (Exception e) {
-            System.err.println("Error inserting images: " + e.getMessage());
+            System.err.println("Error inserting images (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     /**
-     * ID로 이미지 조회
+     * ID로 이미지 조회 (기본값: 영어)
      */
     public ImagesDTO findById(String id) {
+        return findById(id, "en");
+    }
+
+    /**
+     * ID로 이미지 조회 (언어별)
+     * - 영어(en): id 필드로 조회
+     * - 한국어(ko): kid 필드로 조회
+     */
+    public ImagesDTO findById(String id, String language) {
+        // 언어에 따라 id 또는 kid 필드로 조회
+        String idField = "ko".equals(language) ? "kid" : "id";
+
         try {
-            Bson filter = Filters.eq("id", id);
+            Bson filter = Filters.eq(idField, id);
             Document doc = collection.find(filter).first();
             return doc != null ? documentToDTO(doc) : null;
         } catch (Exception e) {
-            System.err.println("Error finding images by id: " + e.getMessage());
+            System.err.println("Error finding images by " + idField + " (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -65,13 +90,27 @@ public class ImagesDAO {
      * 이미지 데이터 업데이트
      */
     public boolean update(String id, ImagesDTO images) {
+        return update(id, images, "en");
+    }
+
+    /**
+     * Update image data in language-specific field
+     * @param id Exercise ID
+     * @param images Image data to update
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean update(String id, ImagesDTO images, String language) {
+        // 언어에 따라 id 또는 kid 필드로 업데이트
+        String idField = "ko".equals(language) ? "kid" : "id";
+
         try {
-            Bson filter = Filters.eq("id", id);
+            Bson filter = Filters.eq(idField, id);
             Bson updates = Updates.set("images", images.getImages());
             collection.updateOne(filter, updates);
             return true;
         } catch (Exception e) {
-            System.err.println("Error updating images: " + e.getMessage());
+            System.err.println("Error updating images (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -81,12 +120,25 @@ public class ImagesDAO {
      * ID로 이미지 삭제
      */
     public boolean deleteById(String id) {
+        return deleteById(id, "en");
+    }
+
+    /**
+     * Delete image data by language-specific field
+     * @param id Exercise ID
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean deleteById(String id, String language) {
+        // 언어에 따라 id 또는 kid 필드로 삭제
+        String idField = "ko".equals(language) ? "kid" : "id";
+
         try {
-            Bson filter = Filters.eq("id", id);
+            Bson filter = Filters.eq(idField, id);
             collection.deleteOne(filter);
             return true;
         } catch (Exception e) {
-            System.err.println("Error deleting images: " + e.getMessage());
+            System.err.println("Error deleting images (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }

@@ -73,7 +73,7 @@ public class CategoryData {
     }
 
     /**
-     * Products 데이터를 반환
+     * Products 데이터를 반환 (Main Page Featured Products - Expanded to 8)
      */
     public static List<ProductDTO> getProducts() {
         List<ProductDTO> products = new ArrayList<>();
@@ -81,6 +81,10 @@ public class CategoryData {
         products.add(new ProductDTO("Rogue", "Monster Bands", 25, 22, "🥘"));
         products.add(new ProductDTO("GORNATION", "Premium Pull Up Station", 122, 102, "🥘"));
         products.add(new ProductDTO("Rogue", "Dumbbells", 50, 45, "🥘"));
+        products.add(new ProductDTO("Nike", "Resistance Bands Set", 35, 28, "🥘"));
+        products.add(new ProductDTO("Adidas", "Yoga Mat Pro", 40, 35, "🥘"));
+        products.add(new ProductDTO("Under Armour", "Kettlebell 16kg", 65, 58, "🥘"));
+        products.add(new ProductDTO("Reebok", "Adjustable Bench", 180, 160, "🥘"));
         return products;
     }
 

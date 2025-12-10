@@ -4,7 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import dto.AmazonProductDTO;
+import dto.NaverProductDTO;
 import dto.ProductCacheDTO;
 import mongoutil.MongoConn;
 import org.bson.Document;
@@ -41,6 +41,25 @@ public class ProductCacheDAO {
             return documentToCache(doc);
         } catch (Exception e) {
             System.err.println("Error finding product cache by search query: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Find cached products by category (for store products)
+     */
+    public ProductCacheDTO findByCategory(String category) {
+        try {
+            Document doc = collection.find(
+                Filters.and(
+                    Filters.eq("category", category),
+                    Filters.eq("storeCategory", true)
+                )
+            ).first();
+            return documentToCache(doc);
+        } catch (Exception e) {
+            System.err.println("Error finding product cache by category: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -105,23 +124,24 @@ public class ProductCacheDAO {
         Document doc = new Document()
                 .append("searchQuery", cache.getSearchQuery())
                 .append("lastUpdated", cache.getLastUpdated())
-                .append("createdAt", cache.getCreatedAt());
+                .append("createdAt", cache.getCreatedAt())
+                .append("category", cache.getCategory())
+                .append("storeCategory", cache.isStoreCategory());
 
         // Convert products list to documents list
         List<Document> productDocs = new ArrayList<>();
         if (cache.getProducts() != null) {
-            for (AmazonProductDTO product : cache.getProducts()) {
+            for (NaverProductDTO product : cache.getProducts()) {
                 Document productDoc = new Document()
-                        .append("position", product.getPosition())
-                        .append("asin", product.getAsin())
-                        .append("name", product.getName())
+                        .append("title", product.getTitle())
+                        .append("link", product.getLink())
                         .append("image", product.getImage())
-                        .append("hasPrime", product.isHasPrime())
-                        .append("isBestSeller", product.isIsBestSeller())
-                        .append("stars", product.getStars())
-                        .append("url", product.getUrl())
-                        .append("priceString", product.getPriceString())
-                        .append("price", product.getPrice());
+                        .append("lprice", product.getLprice())
+                        .append("hprice", product.getHprice())
+                        .append("mallName", product.getMallName())
+                        .append("productId", product.getProductId())
+                        .append("brand", product.getBrand())
+                        .append("maker", product.getMaker());
                 productDocs.add(productDoc);
             }
         }
@@ -143,23 +163,24 @@ public class ProductCacheDAO {
         cache.setSearchQuery(doc.getString("searchQuery"));
         cache.setLastUpdated(doc.getDate("lastUpdated"));
         cache.setCreatedAt(doc.getDate("createdAt"));
+        cache.setCategory(doc.getString("category"));
+        cache.setStoreCategory(doc.getBoolean("storeCategory", false));
 
-        // Convert products documents to AmazonProductDTO list
-        List<AmazonProductDTO> products = new ArrayList<>();
+        // Convert products documents to NaverProductDTO list
+        List<NaverProductDTO> products = new ArrayList<>();
         List<Document> productDocs = (List<Document>) doc.get("products");
         if (productDocs != null) {
             for (Document productDoc : productDocs) {
-                AmazonProductDTO product = new AmazonProductDTO();
-                product.setPosition(productDoc.getInteger("position", 0));
-                product.setAsin(productDoc.getString("asin"));
-                product.setName(productDoc.getString("name"));
+                NaverProductDTO product = new NaverProductDTO();
+                product.setTitle(productDoc.getString("title"));
+                product.setLink(productDoc.getString("link"));
                 product.setImage(productDoc.getString("image"));
-                product.setHasPrime(productDoc.getBoolean("hasPrime", false));
-                product.setIsBestSeller(productDoc.getBoolean("isBestSeller", false));
-                product.setStars(productDoc.getDouble("stars") != null ? productDoc.getDouble("stars") : 0.0);
-                product.setUrl(productDoc.getString("url"));
-                product.setPriceString(productDoc.getString("priceString"));
-                product.setPrice(productDoc.getDouble("price") != null ? productDoc.getDouble("price") : 0.0);
+                product.setLprice(productDoc.getInteger("lprice", 0));
+                product.setHprice(productDoc.getInteger("hprice", 0));
+                product.setMallName(productDoc.getString("mallName"));
+                product.setProductId(productDoc.getString("productId"));
+                product.setBrand(productDoc.getString("brand"));
+                product.setMaker(productDoc.getString("maker"));
                 products.add(product);
             }
         }

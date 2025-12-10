@@ -30,8 +30,34 @@ public class ExerciseDetailDAO {
         return instance;
     }
 
+    /**
+     * 언어에 따라 컬렉션 이름 반환
+     */
+    private String getCollectionName(String language) {
+        return "ko".equals(language) ? "k_exercisesDetails" : "exerciseDetails";
+    }
+
+    /**
+     * 언어별 컬렉션 가져오기
+     */
+    private MongoCollection<Document> getCollection(String language) {
+        MongoDatabase database = MongoConn.getDatabase();
+        return database.getCollection(getCollectionName(language));
+    }
+
     public boolean insert(ExerciseDetailDTO exerciseDetail) {
+        return insert(exerciseDetail, "en");
+    }
+
+    /**
+     * Insert exercise detail into language-specific collection
+     * @param exerciseDetail Exercise detail to insert
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean insert(ExerciseDetailDTO exerciseDetail, String language) {
         try {
+            MongoCollection<Document> col = getCollection(language);
             Document doc = new Document()
                     .append("id", exerciseDetail.getId())
                     .append("name", exerciseDetail.getName())
@@ -45,17 +71,28 @@ public class ExerciseDetailDAO {
                     .append("primaryMuscles", exerciseDetail.getPrimaryMuscles())
                     .append("secondaryMuscles", exerciseDetail.getSecondaryMuscles());
 
-            collection.insertOne(doc);
+            col.insertOne(doc);
             return true;
         } catch (Exception e) {
-            System.err.println("Error inserting exercise detail: " + e.getMessage());
+            System.err.println("Error inserting exercise detail (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public boolean insertMany(List<ExerciseDetailDTO> exerciseDetails) {
+        return insertMany(exerciseDetails, "en");
+    }
+
+    /**
+     * Insert multiple exercise details into language-specific collection
+     * @param exerciseDetails List of exercise details to insert
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean insertMany(List<ExerciseDetailDTO> exerciseDetails, String language) {
         try {
+            MongoCollection<Document> col = getCollection(language);
             List<Document> documents = new ArrayList<>();
             for (ExerciseDetailDTO exerciseDetail : exerciseDetails) {
                 Document doc = new Document()
@@ -72,44 +109,71 @@ public class ExerciseDetailDAO {
                         .append("secondaryMuscles", exerciseDetail.getSecondaryMuscles());
                 documents.add(doc);
             }
-            collection.insertMany(documents);
+            col.insertMany(documents);
             return true;
         } catch (Exception e) {
-            System.err.println("Error inserting exercise details: " + e.getMessage());
+            System.err.println("Error inserting exercise details (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public ExerciseDetailDTO findById(String id) {
+        return findById(id, "en");  // 기본값: 영어
+    }
+
+    /**
+     * ID로 운동 상세 정보 조회 (언어별)
+     */
+    public ExerciseDetailDTO findById(String id, String language) {
         try {
-            Document doc = collection.find(Filters.eq("id", id)).first();
+            MongoCollection<Document> col = getCollection(language);
+            Document doc = col.find(Filters.eq("id", id)).first();
             return documentToDTO(doc);
         } catch (Exception e) {
-            System.err.println("Error finding exercise detail by id: " + e.getMessage());
+            System.err.println("Error finding exercise detail by id (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
 
     public List<ExerciseDetailDTO> findAll() {
+        return findAll("en");  // 기본값: 영어
+    }
+
+    /**
+     * 모든 운동 상세 정보 조회 (언어별)
+     */
+    public List<ExerciseDetailDTO> findAll(String language) {
         List<ExerciseDetailDTO> exerciseDetails = new ArrayList<>();
         try {
-            for (Document doc : collection.find()) {
+            MongoCollection<Document> col = getCollection(language);
+            for (Document doc : col.find()) {
                 ExerciseDetailDTO exerciseDetail = documentToDTO(doc);
                 if (exerciseDetail != null) {
                     exerciseDetails.add(exerciseDetail);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error finding all exercise details: " + e.getMessage());
+            System.err.println("Error finding all exercise details (" + language + "): " + e.getMessage());
             e.printStackTrace();
         }
         return exerciseDetails;
     }
 
     public boolean update(ExerciseDetailDTO exerciseDetail) {
+        return update(exerciseDetail, "en");
+    }
+
+    /**
+     * Update exercise detail in language-specific collection
+     * @param exerciseDetail Exercise detail to update
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean update(ExerciseDetailDTO exerciseDetail, String language) {
         try {
+            MongoCollection<Document> col = getCollection(language);
             Document doc = new Document()
                     .append("name", exerciseDetail.getName())
                     .append("category", exerciseDetail.getCategory())
@@ -122,42 +186,73 @@ public class ExerciseDetailDAO {
                     .append("primaryMuscles", exerciseDetail.getPrimaryMuscles())
                     .append("secondaryMuscles", exerciseDetail.getSecondaryMuscles());
 
-            collection.updateOne(Filters.eq("id", exerciseDetail.getId()), new Document("$set", doc));
+            col.updateOne(Filters.eq("id", exerciseDetail.getId()), new Document("$set", doc));
             return true;
         } catch (Exception e) {
-            System.err.println("Error updating exercise detail: " + e.getMessage());
+            System.err.println("Error updating exercise detail (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public boolean delete(String id) {
+        return delete(id, "en");
+    }
+
+    /**
+     * Delete exercise detail from language-specific collection
+     * @param id Exercise detail ID to delete
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean delete(String id, String language) {
         try {
-            collection.deleteOne(Filters.eq("id", id));
+            MongoCollection<Document> col = getCollection(language);
+            col.deleteOne(Filters.eq("id", id));
             return true;
         } catch (Exception e) {
-            System.err.println("Error deleting exercise detail: " + e.getMessage());
+            System.err.println("Error deleting exercise detail (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public long count() {
+        return count("en");  // 기본값: 영어
+    }
+
+    /**
+     * 운동 상세 정보 개수 조회 (언어별)
+     */
+    public long count(String language) {
         try {
-            return collection.countDocuments();
+            MongoCollection<Document> col = getCollection(language);
+            return col.countDocuments();
         } catch (Exception e) {
-            System.err.println("Error counting exercise details: " + e.getMessage());
+            System.err.println("Error counting exercise details (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
     }
 
     public boolean deleteAll() {
+        return deleteAll("en");
+    }
+
+    /**
+     * Delete all exercise details from language-specific collection
+     * CRITICAL: This protects Korean data by deleting only the specified language collection
+     * @param language Language code ("en" or "ko")
+     * @return true if successful
+     */
+    public boolean deleteAll(String language) {
         try {
-            collection.deleteMany(new Document());
+            MongoCollection<Document> col = getCollection(language);
+            col.deleteMany(new Document());
+            System.out.println("Deleted all exercise details from " + language + " collection");
             return true;
         } catch (Exception e) {
-            System.err.println("Error deleting all exercise details: " + e.getMessage());
+            System.err.println("Error deleting all exercise details (" + language + "): " + e.getMessage());
             e.printStackTrace();
             return false;
         }

@@ -79,6 +79,51 @@
                     </div>
                 </c:forEach>
             </div>
+
+            <!-- Pagination -->
+            <c:if test="${totalPages > 1}">
+                <div class="pagination">
+                    <c:if test="${currentPage > 1}">
+                        <c:choose>
+                            <c:when test="${not empty searchQuery}">
+                                <a href="${pageContext.request.contextPath}/exercises?action=search&q=${searchQuery}&page=${currentPage - 1}">Previous</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/exercises?action=list&page=${currentPage - 1}">Previous</a>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
+
+                    <c:forEach var="i" begin="1" end="${totalPages}">
+                        <c:choose>
+                            <c:when test="${i == currentPage}">
+                                <span class="current">${i}</span>
+                            </c:when>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${not empty searchQuery}">
+                                        <a href="${pageContext.request.contextPath}/exercises?action=search&q=${searchQuery}&page=${i}">${i}</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/exercises?action=list&page=${i}">${i}</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+
+                    <c:if test="${currentPage < totalPages}">
+                        <c:choose>
+                            <c:when test="${not empty searchQuery}">
+                                <a href="${pageContext.request.contextPath}/exercises?action=search&q=${searchQuery}&page=${currentPage + 1}">Next</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/exercises?action=list&page=${currentPage + 1}">Next</a>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
+                </div>
+            </c:if>
         </c:when>
         <c:otherwise>
             <div class="no-exercises">
