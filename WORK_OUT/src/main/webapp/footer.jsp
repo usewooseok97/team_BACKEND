@@ -2,8 +2,8 @@
 <!-- Footer -->
 <footer class="footer">
     <div class="footer-links">
-        <a href="privacy.jsp">Policy</a> |
-        <a href="customerService.jsp">Customer Service</a>
+        <a href="privacy.jsp">${lang == 'ko' ? '정책' : 'POLICY'}</a> |
+        <a href="customerService.jsp">${lang == 'ko' ? '고객센터' : 'CUSTOMER SERVICE'}</a>
     </div>
 
     <!-- SNS & Email Links using Font Awesome -->
@@ -20,7 +20,7 @@
     </div>
 
     <div class="footer-copyright">
-        © 2025 DONGYANG MIRAE UNIVERSITY BACKEND TEAM-02 WOOSEOK KANG JOONYEONG LEE YOONJAE CHO. <br> ALL RIGHTS RESERVED.
+       ${lang == 'ko' ? '© 2025 동양미래대학교 컴퓨터소프트웨어공학과 강우석 이준영 조윤재' : '© 2025 DONGYANG MIRAE UNIVERSITY BACKEND TEAM-02 WOOSEOK KANG JOONYEONG LEE YOONJAE CHO.'}  <br>  ${lang == 'ko' ? '저작권 법에 의해 보호됩니다.' : 'ALL RIGHTS RESERVED'}
     </div>
 </footer>
 

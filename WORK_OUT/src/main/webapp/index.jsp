@@ -10,7 +10,7 @@ pageContext.setAttribute("products",CategoryData.getProducts());
 
 <!-- Hero Section -->
 <section class="hero">
-  	<h1 class="hero-title">WORK<br />OUT</h1>
+  	<h1 class="hero-title">${lang == 'ko' ? '워크' : 'WORK'}<br />${lang == 'ko' ? '아웃' : 'OUT'}</h1>
 	<div class="hero-search">
 	  <form action="${pageContext.request.contextPath}/exercises" method="get">
 	    <input type="hidden" name="action" value="search">

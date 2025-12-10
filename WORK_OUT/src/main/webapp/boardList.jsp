@@ -14,8 +14,8 @@
 
 <div class="board-container">
     <div class="board-header">
-        <h1>CUSTOMER SERVICE</h1>
-        <p>Please check the inquiries below or create a new inquiry.</p>
+        <h1>${lang == 'ko' ? '고객센터' : 'CUSTOMER SERVICE'}</h1>
+        <p>${lang == 'ko' ? '먼저 질문들을 확인해보세요. 원하시는 답변이 없으면, 문의를 남겨주세요.' : 'Please check the inquiries below or create a new inquiry.'}</p>
     </div>
 
     <c:if test="${not empty error}">
@@ -29,12 +29,12 @@
         <form action="${pageContext.request.contextPath}/inquiry" method="get" class="search-form">
             <input type="hidden" name="action" value="list">
             <select name="searchType">
-                <option value="all" ${searchType == 'all' ? 'selected' : ''}>All</option>
-                <option value="title" ${searchType == 'title' ? 'selected' : ''}>Title</option>
-                <option value="content" ${searchType == 'content' ? 'selected' : ''}>Content</option>
+                <option value="all" ${searchType == 'all' ? 'selected' : ''}>${lang == 'ko' ? '더보기..' : 'ALL'}</option>
+                <option value="title" ${searchType == 'title' ? 'selected' : ''}>${lang == 'ko' ? '제목' : 'TITLE'}</option>
+                <option value="content" ${searchType == 'content' ? 'selected' : ''}>${lang == 'ko' ? '내용' : 'CONTENT'}</option>
             </select>
-            <input type="text" name="searchKeyword" value="${searchKeyword != null ? searchKeyword : ''}" placeholder="Search...">
-            <button type="submit">Search</button>
+            <input type="text" name="searchKeyword" value="${searchKeyword != null ? searchKeyword : ''}" placeholder="${lang == 'ko' ? '검색..' : 'Search..'}">
+            <button type="submit">${lang == 'ko' ? '검색' : 'SEARCH'}</button>
         </form>
         <c:if test="${not empty sessionScope.user}">
             <a href="${pageContext.request.contextPath}/inquiry?action=write" class="write-btn">Write Inquiry</a>
@@ -47,12 +47,12 @@
             <table class="board-table">
                 <thead>
                     <tr>
-                        <th style="width: 8%;">No</th>
-                        <th style="width: 40%;">Title</th>
-                        <th style="width: 12%;">Author</th>
-                        <th style="width: 12%;">Date</th>
-                        <th style="width: 8%;">Views</th>
-                        <th style="width: 10%;">Status</th>
+                        <th style="width: 8%;">${lang == 'ko' ? '순위' : 'NO'}</th>
+                        <th style="width: 40%;">${lang == 'ko' ? '제목' : 'TITLE'}</th>
+                        <th style="width: 12%;">${lang == 'ko' ? '글쓴이' : 'AUTHOR'}</th>
+                        <th style="width: 12%;">${lang == 'ko' ? '날짜' : 'DATE'}</th>
+                        <th style="width: 8%;">${lang == 'ko' ? '조회수' : 'VIEWS'}</th>
+                        <th style="width: 10%;">${lang == 'ko' ? '상태' : 'STATUS'}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,10 +70,13 @@
                             </td>
                             <td>${inquiry.viewCount}</td>
                             <td>
-                                <span class="status-badge ${inquiry.status == '답변완료' ? 'status-completed' : 'status-waiting'}">
-                                    ${inquiry.status == '답변완료' ? 'Answered' : 'Pending'}
-                                </span>
-                            </td>
+    							<span class="status-badge ${inquiry.status == '답변완료' ? 'status-completed' : 'status-waiting'}">
+        							${lang == 'ko' 
+            						? (inquiry.status == '답변완료' ? '답변완료' : '대기중') 
+            						: (inquiry.status == '답변완료' ? 'Answered' : 'Pending')}
+    							</span>
+							</td>
+
                         </tr>
                     </c:forEach>
                 </tbody>
@@ -82,7 +85,7 @@
             <!-- 페이징 -->
             <div class="pagination">
                 <c:if test="${currentPage > 1}">
-                    <a href="${pageContext.request.contextPath}/inquiry?action=list&page=${currentPage - 1}&searchType=${searchType}&searchKeyword=${searchKeyword}">Previous</a>
+                    <a href="${pageContext.request.contextPath}/inquiry?action=list&page=${currentPage - 1}&searchType=${searchType}&searchKeyword=${searchKeyword}">${lang == 'ko' ? '이전으로' : 'PREVIOUS'}</a>
                 </c:if>
                 
                 <c:forEach var="i" begin="1" end="${totalPages}">
@@ -97,7 +100,7 @@
                 </c:forEach>
                 
                 <c:if test="${currentPage < totalPages}">
-                    <a href="${pageContext.request.contextPath}/inquiry?action=list&page=${currentPage + 1}&searchType=${searchType}&searchKeyword=${searchKeyword}">Next</a>
+                    <a href="${pageContext.request.contextPath}/inquiry?action=list&page=${currentPage + 1}&searchType=${searchType}&searchKeyword=${searchKeyword}">${lang == 'ko' ? '다음으로' : 'NEXT'}</a>
                 </c:if>
             </div>
         </c:when>

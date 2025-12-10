@@ -54,7 +54,7 @@
                         <div class="exercise-name">${exercise.name}</div>
                         <c:if test="${not empty exercise.primaryMuscles}">
                             <div class="exercise-info">
-                                <strong>PRIMARY MUSCLES:</strong>
+                                <strong>${lang == 'ko' ? '주요 근육:' : 'PRIMARY MUSCLES:'}</strong>
                                 <c:forEach var="muscle" items="${exercise.primaryMuscles}" varStatus="status">
                                     <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="badge badge-target">${muscle}</a><c:if test="${!status.last}">, </c:if>
                                 </c:forEach>
@@ -62,7 +62,7 @@
                         </c:if>
                         <c:if test="${not empty exercise.secondaryMuscles}">
                             <div class="exercise-info">
-                                <strong>SECONDARY MUSCLES:</strong>
+                                <strong>${lang == 'ko' ? '보조 근육:' : 'SECONDARY MUSCLES:'}</strong>
                                 <c:forEach var="muscle" items="${exercise.secondaryMuscles}" varStatus="status">
                                     <a href="${pageContext.request.contextPath}/exercises?action=search&q=${muscle}" class="badge badge-bodypart">${muscle}</a><c:if test="${!status.last}">, </c:if>
                                 </c:forEach>
@@ -74,7 +74,7 @@
                             </div>
                         </c:if>
                         <a href="${pageContext.request.contextPath}/exercises?action=detail&id=${exercise.id}" class="detail-button">
-                            Details
+                            ${lang == 'ko' ? '자세히 ' : 'DETAILS'}
                         </a>
                     </div>
                 </c:forEach>

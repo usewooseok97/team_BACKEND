@@ -12,7 +12,7 @@
 <%@ include file="header.jsp" %>
 
 <div class="form-container">
-    <h2 class="form-title">${lang == 'ko' ? '회원가입' : 'SignUp'}</h2>
+    <h2 class="form-title">${lang == 'ko' ? '회원가입' : 'SIGN UP'}</h2>
 
     <c:if test="${not empty error}">
         <div class="error-message">${error}</div>

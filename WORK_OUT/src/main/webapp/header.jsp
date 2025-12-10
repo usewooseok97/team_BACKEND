@@ -54,16 +54,32 @@
 <body>
     <!-- Navigation Bar -->
    <nav class="navbar">
+   
     <a href="index.jsp" class="logo">🏋️</a>
     <div class="search-container">
         <form action="${pageContext.request.contextPath}/exercises" method="get">
             <input type="hidden" name="action" value="search">
-            <input type="text" name="q" class="search-input" placeholder="Search..">
+            <input type="text" name="q" class="search-input" placeholder="${lang == 'ko' ? '검색..' : 'Search..'}">
         </form>
     </div>
     <div class="nav-right">
-        <a href="store.jsp" class="nav-button">Store</a>
-        <a href="${pageContext.request.contextPath}/exercises" class="nav-button">Exercises</a>
+    <div class="lang-selector">
+    <form action="${pageContext.request.contextPath}/language" method="get">
+        <input type="radio" id="lang-en" name="lang" value="en" class="lang-radio" 
+            <c:if test="${lang != 'ko'}">checked</c:if>
+            onchange="this.form.submit()">
+        <label for="lang-en" class="lang-label">EN</label>
+        /
+        <input type="radio" id="lang-kr" name="lang" value="ko" class="lang-radio" 
+            <c:if test="${lang == 'ko'}">checked</c:if>
+            onchange="this.form.submit()">
+        <label for="lang-kr" class="lang-label">KR</label>
+    </form>
+</div>
+    
+    
+        <a href="store.jsp" class="nav-button">${lang == 'ko' ? '스토어' : 'STORE'}</a>
+        <a href="${pageContext.request.contextPath}/exercises" class="nav-button">${lang == 'ko' ? '운동' : 'EXERCISES'}</a>
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
                 <c:if test="${sessionScope.user.admin}">
@@ -74,8 +90,8 @@
                 <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">로그아웃</a>
             </c:when>
             <c:otherwise>
-                <a href="${pageContext.request.contextPath}/register" class="nav-button">SIGNUP</a>
-                <a href="${pageContext.request.contextPath}/login" class="nav-button login">LOGIN</a>
+                <a href="${pageContext.request.contextPath}/register" class="nav-button">${lang == 'ko' ? '회원가입' : 'SIGN UP'}</a>
+                <a href="${pageContext.request.contextPath}/login" class="nav-button login">${lang == 'ko' ? '로그인' : 'LOG IN'}</a>
             </c:otherwise>
         </c:choose>
     </div>
@@ -104,19 +120,3 @@
     - .lang-icon: Line 49-51에 정의
     - position: fixed, top: 80px, right: 20px (Line 22-25)
 -->
-<div class="language-toggle">
-    <c:choose>
-        <c:when test="${lang == 'ko'}">
-            <a href="${pageContext.request.contextPath}/language?lang=en" class="lang-btn">
-                <span class="lang-icon">🇺🇸</span>
-                <span>English</span>
-            </a>
-        </c:when>
-        <c:otherwise>
-            <a href="${pageContext.request.contextPath}/language?lang=ko" class="lang-btn">
-                <span class="lang-icon">🇰🇷</span>
-                <span>한국어</span>
-            </a>
-        </c:otherwise>
-    </c:choose>
-</div>
