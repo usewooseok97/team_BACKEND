@@ -11,19 +11,33 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
- 
+
+
 @WebServlet("/store")
 public class StoreServlet extends HttpServlet {
 
     private StoreProductService storeProductService;
+    private final CountDownLatch initLatch = new CountDownLatch(1);
+    private volatile boolean initSuccess = false;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        storeProductService = StoreProductService.getInstance();
+        System.out.println("StoreServlet: Initializing...");
+        try {
+            storeProductService = StoreProductService.getInstance();
+            initSuccess = true;
+            System.out.println("StoreServlet: StoreProductService initialized successfully");
+        } catch (Exception e) {
+            System.err.println("StoreServlet: Failed to initialize StoreProductService: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            initLatch.countDown(); // 초기화 완료 신호 (성공/실패 무관)
+        }
     }
 
     @Override
@@ -59,13 +73,43 @@ public class StoreServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+            System.out.println("StoreServlet: handleList called with categoryId=" + categoryId);
+
+            // Wait for initialization to complete (max 30 seconds)
+            if (!initLatch.await(30, TimeUnit.SECONDS)) {
+                System.err.println("StoreServlet: Initialization timeout!");
+                request.setAttribute("allCategories", StoreCategoryData.getAllCategories());
+                request.setAttribute("products", new ArrayList<>());
+                request.setAttribute("error", "Service initialization timeout. Please try again.");
+                String lang = (String) request.getSession().getAttribute("language");
+                if (lang == null) lang = "en";
+                request.setAttribute("lang", lang);
+                request.getRequestDispatcher("/store.jsp").forward(request, response);
+                return;
+            }
+
+            // Check if initialization was successful
+            if (!initSuccess || storeProductService == null) {
+                System.err.println("StoreServlet: StoreProductService initialization failed!");
+                request.setAttribute("allCategories", StoreCategoryData.getAllCategories());
+                request.setAttribute("products", new ArrayList<>());
+                request.setAttribute("error", "Service initialization failed. Please try again later.");
+                String lang = (String) request.getSession().getAttribute("language");
+                if (lang == null) lang = "en";
+                request.setAttribute("lang", lang);
+                request.getRequestDispatcher("/store.jsp").forward(request, response);
+                return;
+            }
+
             // Get all categories for navigation
             List<StoreCategory> allCategories = StoreCategoryData.getAllCategories();
             request.setAttribute("allCategories", allCategories);
+            System.out.println("StoreServlet: Found " + allCategories.size() + " categories");
 
             // If no category specified, default to first category
             if ((categoryId == null || categoryId.isEmpty()) && !allCategories.isEmpty()) {
                 categoryId = allCategories.get(0).getId();
+                System.out.println("StoreServlet: Defaulted to first category: " + categoryId);
             }
 
             // Always attempt to get currentCategory if categoryId is available (either from param or defaulted)
@@ -73,12 +117,14 @@ public class StoreServlet extends HttpServlet {
             if (categoryId != null && !categoryId.isEmpty()) {
                 currentCategory = StoreCategoryData.getCategoryById(categoryId);
             }
-            request.setAttribute("currentCategory", currentCategory); // Set currentCategory here
+            request.setAttribute("currentCategory", currentCategory);
 
             // If currentCategory is valid, load products
-            if (currentCategory != null) { // Use currentCategory here
+            if (currentCategory != null) {
                 // Lazy load products (will use cache if available)
+                System.out.println("StoreServlet: Loading products for category: " + categoryId);
                 List<NaverProductDTO> products = storeProductService.getCategoryProducts(categoryId);
+                System.out.println("StoreServlet: Loaded " + products.size() + " products");
 
                 request.setAttribute("products", products);
                 request.setAttribute("productCount", products.size());
@@ -89,6 +135,9 @@ public class StoreServlet extends HttpServlet {
                 } else if (allCategories.isEmpty()) {
                     request.setAttribute("error", "No categories available.");
                 }
+                // Set empty products list
+                request.setAttribute("products", new ArrayList<>());
+                request.setAttribute("productCount", 0);
             }
 
             // Always get category counts for navigation
@@ -108,7 +157,16 @@ public class StoreServlet extends HttpServlet {
         } catch (Exception e) {
             System.err.println("Error in store list: " + e.getMessage());
             e.printStackTrace();
+            // Set safe defaults even on error
+            request.setAttribute("allCategories", StoreCategoryData.getAllCategories());
+            request.setAttribute("products", new ArrayList<>());
+            request.setAttribute("productCount", 0);
             request.setAttribute("error", "Error loading store: " + e.getMessage());
+
+            String lang = (String) request.getSession().getAttribute("language");
+            if (lang == null) lang = "en";
+            request.setAttribute("lang", lang);
+
             request.getRequestDispatcher("/store.jsp").forward(request, response);
         }
     }

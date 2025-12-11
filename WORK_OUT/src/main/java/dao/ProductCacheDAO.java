@@ -168,20 +168,25 @@ public class ProductCacheDAO {
 
         // Convert products documents to NaverProductDTO list
         List<NaverProductDTO> products = new ArrayList<>();
-        List<Document> productDocs = (List<Document>) doc.get("products");
-        if (productDocs != null) {
-            for (Document productDoc : productDocs) {
-                NaverProductDTO product = new NaverProductDTO();
-                product.setTitle(productDoc.getString("title"));
-                product.setLink(productDoc.getString("link"));
-                product.setImage(productDoc.getString("image"));
-                product.setLprice(productDoc.getInteger("lprice", 0));
-                product.setHprice(productDoc.getInteger("hprice", 0));
-                product.setMallName(productDoc.getString("mallName"));
-                product.setProductId(productDoc.getString("productId"));
-                product.setBrand(productDoc.getString("brand"));
-                product.setMaker(productDoc.getString("maker"));
-                products.add(product);
+        Object productsObj = doc.get("products");
+
+        if (productsObj instanceof List) {
+            List<?> productDocsRaw = (List<?>) productsObj;
+            for (Object productObj : productDocsRaw) {
+                if (productObj instanceof Document) {
+                    Document productDoc = (Document) productObj;
+                    NaverProductDTO product = new NaverProductDTO();
+                    product.setTitle(productDoc.getString("title"));
+                    product.setLink(productDoc.getString("link"));
+                    product.setImage(productDoc.getString("image"));
+                    product.setLprice(productDoc.getInteger("lprice", 0));
+                    product.setHprice(productDoc.getInteger("hprice", 0));
+                    product.setMallName(productDoc.getString("mallName"));
+                    product.setProductId(productDoc.getString("productId"));
+                    product.setBrand(productDoc.getString("brand"));
+                    product.setMaker(productDoc.getString("maker"));
+                    products.add(product);
+                }
             }
         }
         cache.setProducts(products);

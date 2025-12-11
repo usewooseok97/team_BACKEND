@@ -1,10 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-pageEncoding="UTF-8"%> <%@ page import="data.CategoryData" %> 
+    pageEncoding="UTF-8"%>
+<%@ page import="data.CategoryData" %> 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<% pageContext.setAttribute("bodyParts",CategoryData.getBodyParts()); 
-pageContext.setAttribute("sports",CategoryData.getSports()); 
-pageContext.setAttribute("machines",CategoryData.getMachines());
-pageContext.setAttribute("products",CategoryData.getProducts());
+<%
+    pageContext.setAttribute("bodyParts", CategoryData.getBodyParts());
+    pageContext.setAttribute("sports", CategoryData.getSports());
 %>
  <%@ include file="header.jsp" %>
 
@@ -43,6 +43,28 @@ pageContext.setAttribute("products",CategoryData.getProducts());
           <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
         </div>
       </c:forEach>
+    </div>
+    
+    <div class="category-grid" id="bodyGrid-upper">
+        <c:forEach var="item" items="${bodyParts}">
+            <c:if test="${item.category == 'upper'}">
+                <div class="category-item" data-search-name="${item.name}">
+                    <div class="category-icon">${item.icon}</div>
+                    <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
+                </div>
+            </c:if>
+        </c:forEach>
+    </div>
+
+    <div class="category-grid" id="bodyGrid-lower">
+        <c:forEach var="item" items="${bodyParts}">
+            <c:if test="${item.category == 'lower'}">
+                <div class="category-item" data-search-name="${item.name}">
+                    <div class="category-icon">${item.icon}</div>
+                    <div class="category-name">${lang == 'ko' ? item.nameKo : item.name}</div>
+                </div>
+            </c:if>
+        </c:forEach>
     </div>
   </div>
 
@@ -149,24 +171,6 @@ pageContext.setAttribute("products",CategoryData.getProducts());
   </div>
 </section>
 
-<!-- Products Section -->
-<section class="products-section">
-  <h2 class="section-title">${lang == 'ko' ? '오늘의 할인' : 'Today\'s Discount'}</h2>
-  <div class="products-grid">
-    <c:forEach var="product" items="${products}">
-      <div class="product-card">
-        <div class="bookmark-icon">🔖</div>
-        <div class="product-image">${product.image}</div>
-        <div class="product-brand">${product.brand}</div>
-        <div class="product-name">${product.name}</div>
-        <div class="product-price">
-          <span class="original">${product.originalPrice}$</span>
-          <span class="discount">${product.price}$</span>
-        </div>
-      </div>
-    </c:forEach>
-  </div>
-</section>
 <script>
 window.addEventListener('load', function() {
     var form = document.getElementById('muscleForm');

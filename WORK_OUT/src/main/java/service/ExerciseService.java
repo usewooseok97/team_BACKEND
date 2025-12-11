@@ -14,7 +14,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExerciseService {
     private static ExerciseService instance = new ExerciseService();
@@ -45,142 +48,6 @@ public class ExerciseService {
 
     public static ExerciseService getInstance() {
         return instance;
-    }
-
-    /**
-     * API에서 전체 운동 ID 목록을 가져옵니다
-     */
-    public List<String> fetchExerciseIds() {
-        List<String> exerciseIds = new ArrayList<>();
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/exercises"))
-                    .header("x-rapidapi-key", API_KEY)
-                    .header("x-rapidapi-host", API_HOST)
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
-                    .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-
-            System.out.println("API Response: " + response.body());
-
-            JSONObject jsonResponse = new JSONObject(response.body());
-            // API 응답 키가 "excercises_ids" (오타가 있음)
-            JSONArray idsArray = jsonResponse.optJSONArray("excercises_ids");
-
-            if (idsArray != null) {
-                for (int i = 0; i < idsArray.length(); i++) {
-                    exerciseIds.add(idsArray.getString(i));
-                }
-            }
-
-            System.out.println("Fetched " + exerciseIds.size() + " exercise IDs from API");
-        } catch (Exception e) {
-            System.err.println("Error fetching exercise IDs: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return exerciseIds;
-    }
-
-    /**
-     * API에서 특정 운동의 상세 정보를 가져옵니다
-     */
-    public ExerciseDetailDTO fetchExerciseDetail(String exerciseId) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/exercise/" + exerciseId))
-                    .header("x-rapidapi-key", API_KEY)
-                    .header("x-rapidapi-host", API_HOST)
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
-                    .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-
-            JSONObject json = new JSONObject(response.body());
-            return jsonToDetailDTO(json);
-        } catch (Exception e) {
-            System.err.println("Error fetching exercise detail for " + exerciseId + ": " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * API에서 전체 운동 데이터를 가져와서 DB에 저장합니다
-     * 1. exercise IDs 목록 조회
-     * 2. 각 ID의 상세 정보 조회
-     * 3. exerciseDetails 테이블에 저장
-     * 4. exercises 테이블에 요약 정보 저장
-     */
-    public boolean syncAllExercisesFromAPI(int limit) {
-        try {
-            // 1. exercise IDs 목록 조회
-            List<String> exerciseIds = fetchExerciseIds();
-            if (exerciseIds.isEmpty()) {
-                System.out.println("No exercise IDs fetched from API");
-                return false;
-            }
-
-            // limit 적용
-            if (limit > 0 && limit < exerciseIds.size()) {
-                exerciseIds = exerciseIds.subList(0, limit);
-            }
-
-            System.out.println("Processing " + exerciseIds.size() + " exercises...");
-
-            // 기존 데이터 삭제
-            exerciseDAO.deleteAll();
-            exerciseDetailDAO.deleteAll();
-            System.out.println("Deleted all existing exercise data from DB");
-
-            List<ExerciseDTO> exercises = new ArrayList<>();
-            List<ExerciseDetailDTO> exerciseDetails = new ArrayList<>();
-
-            // 2. 각 ID의 상세 정보 조회
-            int count = 0;
-            for (String exerciseId : exerciseIds) {
-                ExerciseDetailDTO detail = fetchExerciseDetail(exerciseId);
-                if (detail != null) {
-                    exerciseDetails.add(detail);
-
-                    // exercises 테이블용 요약 데이터 생성
-                    ExerciseDTO exercise = new ExerciseDTO();
-                    exercise.setId(detail.getId());
-                    exercise.setName(detail.getName());
-                    exercise.setPrimaryMuscles(detail.getPrimaryMuscles());
-                    exercise.setSecondaryMuscles(detail.getSecondaryMuscles());
-                    exercise.setImages(detail.getImages());
-                    exercise.setLevel(detail.getLevel());
-                    exercises.add(exercise);
-
-                    count++;
-                    if (count % 10 == 0) {
-                        System.out.println("Processed " + count + "/" + exerciseIds.size() + " exercises");
-                    }
-                }
-
-                // API 부하 방지를 위한 짧은 대기
-                Thread.sleep(100);
-            }
-
-            // 3. DB에 저장
-            boolean detailsSaved = exerciseDetailDAO.insertMany(exerciseDetails);
-            boolean exercisesSaved = exerciseDAO.insertMany(exercises);
-
-            if (detailsSaved && exercisesSaved) {
-                System.out.println("Successfully synced " + exercises.size() + " exercises to DB");
-                return true;
-            } else {
-                System.err.println("Failed to save exercises to DB");
-                return false;
-            }
-        } catch (Exception e) {
-            System.err.println("Error syncing exercises: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
     }
 
     /**
@@ -239,12 +106,27 @@ public class ExerciseService {
 
     /**
      * DB에서 특정 운동의 상세 정보 조회 (언어별)
+     * _id로 조회하며, 현재 언어 컬렉션에 없으면 다른 언어 컬렉션에서 자동으로 재시도
      */
     public ExerciseDetailDTO getExerciseDetailById(String id, String language) {
+        // 1단계: 현재 언어 컬렉션에서 조회
         ExerciseDetailDTO exerciseDetail = exerciseDetailDAO.findById(id, language);
-        if (exerciseDetail != null) {
+
+        // 2단계: 못 찾으면 다른 언어 컬렉션에서 조회 (fallback)
+        if (exerciseDetail == null) {
+            String alternativeLanguage = "ko".equals(language) ? "en" : "ko";
+            System.out.println("Exercise not found in " + language + " collection. Trying " + alternativeLanguage + " collection...");
+            exerciseDetail = exerciseDetailDAO.findById(id, alternativeLanguage);
+
+            if (exerciseDetail != null) {
+                System.out.println("Exercise found in " + alternativeLanguage + " collection.");
+                // 이미지는 대체 언어 컬렉션에서 로드
+                setExerciseDetailImages(exerciseDetail, alternativeLanguage);
+            }
+        } else {
             setExerciseDetailImages(exerciseDetail, language);
         }
+
         return exerciseDetail;
     }
 
@@ -259,7 +141,7 @@ public class ExerciseService {
      * 운동 이름으로 검색 (언어별)
      */
     public List<ExerciseDTO> searchByName(String keyword, String language) {
-        List<ExerciseDTO> exercises = exerciseDAO.findByNameContaining(keyword);
+        List<ExerciseDTO> exercises = exerciseDAO.findByNameContaining(keyword, language);
         setExercisesImages(exercises, language);
         return exercises;
     }
@@ -348,6 +230,28 @@ public class ExerciseService {
      */
     public long getExerciseCount(String language) {
         return exerciseDAO.count(language);
+    }
+
+    /**
+     * ID 목록으로 운동 목록 조회 (언어별)
+     * 언어 변경 시 같은 운동들을 새로운 언어로 보여주기 위해 사용
+     * @param ids 운동 ID 목록
+     * @param language 언어 코드
+     * @return 해당 ID들의 운동 목록
+     */
+    public List<ExerciseDTO> getExercisesByIds(List<String> ids, String language) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<ExerciseDTO> exercises = new ArrayList<>();
+        for (String id : ids) {
+            ExerciseDTO exercise = getExerciseById(id, language);
+            if (exercise != null) {
+                exercises.add(exercise);
+            }
+        }
+        return exercises;
     }
 
     /**
@@ -671,14 +575,59 @@ public class ExerciseService {
 
     /**
      * Exercise 리스트에 이미지 설정 (언어별)
+     * N+1 쿼리 문제 해결: 벌크 조회 사용
      */
     private void setExercisesImages(List<ExerciseDTO> exercises, String language) {
         if (exercises == null || exercises.isEmpty()) {
             return;
         }
 
-        for (ExerciseDTO exercise : exercises) {
-            setExerciseImages(exercise, language);
+        long startTime = System.currentTimeMillis();
+
+        try {
+            // 1. 모든 운동 ID 수집
+            List<String> ids = exercises.stream()
+                .filter(e -> e != null && e.getId() != null)
+                .map(ExerciseDTO::getId)
+                .collect(Collectors.toList());
+
+            if (ids.isEmpty()) {
+                return;
+            }
+
+            // 2. 한 번에 모든 이미지 조회 (N+1 해결!)
+            Map<String, ImagesDTO> imagesMap = imagesDAO.findByIds(ids, language);
+
+            // 3. 각 운동에 이미지 매핑
+            int matchedCount = 0;
+            for (ExerciseDTO exercise : exercises) {
+                if (exercise != null && exercise.getId() != null) {
+                    ImagesDTO images = imagesMap.get(exercise.getId());
+                    if (images != null && images.getImages() != null) {
+                        exercise.setImages(images.getImages());
+                        matchedCount++;
+                    } else {
+                        exercise.setImages(new ArrayList<>());
+                    }
+                }
+            }
+
+            // 4. 성능 로깅
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println(String.format(
+                "[ExerciseService] Set images for %d/%d exercises in %dms (%s)",
+                matchedCount, exercises.size(), duration, language
+            ));
+
+        } catch (Exception e) {
+            System.err.println("Error setting exercises images: " + e.getMessage());
+            e.printStackTrace();
+
+            // Fallback: 벌크 조회 실패 시 개별 조회로 복구
+            System.out.println("[FALLBACK] Using individual image queries");
+            for (ExerciseDTO exercise : exercises) {
+                setExerciseImages(exercise, language);
+            }
         }
     }
 }

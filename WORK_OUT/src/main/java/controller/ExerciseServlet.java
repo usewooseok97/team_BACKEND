@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/exercises")
@@ -50,15 +51,6 @@ public class ExerciseServlet extends HttpServlet {
             case "detail":
                 showExerciseDetail(request, response);
                 break;
-            case "sync":
-                syncExercises(request, response);
-                break;
-            case "syncFromDetails":
-                syncExercisesFromDetails(request, response);
-                break;
-            case "syncImages":
-                syncImagesFromExerciseDetails(request, response);
-                break;
             case "filter":
                 filterExercises(request, response);
                 break;
@@ -71,23 +63,6 @@ public class ExerciseServlet extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-
-        String action = request.getParameter("action");
-
-        if ("sync".equals(action)) {
-            syncExercises(request, response);
-        } else if ("syncFromDetails".equals(action)) {
-            syncExercisesFromDetails(request, response);
-        } else {
-            response.sendRedirect(request.getContextPath() + "/exercises");
-        }
-    }
 
     private void listExercises(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -115,6 +90,15 @@ public class ExerciseServlet extends HttpServlet {
             // 페이지네이션된 운동 목록 조회
             List<ExerciseDTO> exercises = exerciseService.getAllExercises(language, page, pageSize);
 
+            // 세션에 현재 결과의 ID 목록 저장 (언어 변경 시 사용)
+            List<String> exerciseIds = new ArrayList<>();
+            for (ExerciseDTO exercise : exercises) {
+                exerciseIds.add(exercise.getId());
+            }
+            request.getSession().setAttribute("currentExerciseIds", exerciseIds);
+            request.getSession().setAttribute("currentAction", "list");
+            request.getSession().setAttribute("currentPage", page);
+
             request.setAttribute("exercises", exercises);
             request.setAttribute("exerciseCount", exercises.size());
             request.setAttribute("totalCount", totalCount);
@@ -138,16 +122,26 @@ public class ExerciseServlet extends HttpServlet {
         String id = request.getParameter("id");
 
         if (id == null || id.trim().isEmpty()) {
+            System.err.println("[ERROR] Detail page called with null or empty ID");
             response.sendRedirect(request.getContextPath() + "/exercises");
             return;
         }
 
         try {
             String language = getLanguage(request);  // 언어 가져오기
+            System.out.println("[DEBUG] Fetching exercise detail - ID: " + id + ", Language: " + language);
             ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(id, language);
 
             if (exerciseDetail != null) {
+                System.out.println("[SUCCESS] Exercise detail found - ID: " + id + ", Name: " + exerciseDetail.getName());
                 request.setAttribute("exercise", exerciseDetail);
+
+                // ⭐ 검색에서 자동 이동 시 언어 전환 메시지 표시
+                String autoLangChangeMessage = (String) request.getSession().getAttribute("autoLangChangeMessage");
+                if (autoLangChangeMessage != null) {
+                    request.setAttribute("message", autoLangChangeMessage);
+                    request.getSession().removeAttribute("autoLangChangeMessage");  // 한번 표시 후 제거
+                }
 
                 // Fetch YouTube videos based on exercise data
                 String videoSearchQuery = youtubeVideoService.determineSearchQuery(
@@ -177,7 +171,11 @@ public class ExerciseServlet extends HttpServlet {
 
                 request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
             } else {
-                request.setAttribute("error", "해당 운동을 찾을 수 없습니다.");
+                System.err.println("[ERROR] Exercise detail NOT FOUND - ID: " + id + ", Language: " + language);
+                System.err.println("[ERROR] This means the ID exists in 'exercises' collection but NOT in 'exerciseDetails' or 'k_exerciseDetails' collections");
+
+                // 세션에 에러 메시지 저장 (redirect 후에도 유지)
+                request.getSession().setAttribute("error", "해당 운동(ID: " + id + ")을 찾을 수 없습니다. exercises 컬렉션에는 있지만 exerciseDetails 컬렉션에는 없는 것 같습니다.");
                 response.sendRedirect(request.getContextPath() + "/exercises");
             }
         } catch (Exception e) {
@@ -188,37 +186,6 @@ public class ExerciseServlet extends HttpServlet {
         }
     }
 
-    private void syncExercises(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        String limitParam = request.getParameter("limit");
-        int limit = 50;
-
-        if (limitParam != null && !limitParam.trim().isEmpty()) {
-            try {
-                limit = Integer.parseInt(limitParam);
-            } catch (NumberFormatException e) {
-                limit = 50;
-            }
-        }
-
-        try {
-            boolean success = exerciseService.syncAllExercisesFromAPI(limit);
-
-            if (success) {
-                long count = exerciseService.getExerciseCount();
-                request.setAttribute("message", "API에서 " + count + "개의 운동 데이터를 성공적으로 동기화했습니다.");
-            } else {
-                request.setAttribute("error", "운동 데이터 동기화에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            System.err.println("Error syncing exercises: " + e.getMessage());
-            e.printStackTrace();
-            request.setAttribute("error", "운동 데이터 동기화 중 오류가 발생했습니다: " + e.getMessage());
-        }
-
-        listExercises(request, response);
-    }
 
     private void filterExercises(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -247,6 +214,16 @@ public class ExerciseServlet extends HttpServlet {
                     break;
             }
 
+            // 세션에 현재 결과의 ID 목록 저장 (언어 변경 시 사용)
+            List<String> exerciseIds = new ArrayList<>();
+            for (ExerciseDTO exercise : exercises) {
+                exerciseIds.add(exercise.getId());
+            }
+            request.getSession().setAttribute("currentExerciseIds", exerciseIds);
+            request.getSession().setAttribute("currentAction", "filter");
+            request.getSession().setAttribute("filterType", filterType);
+            request.getSession().setAttribute("filterValue", filterValue);
+
             request.setAttribute("exercises", exercises);
             request.setAttribute("exerciseCount", exercises.size());
             request.setAttribute("filterType", filterType);
@@ -262,52 +239,6 @@ public class ExerciseServlet extends HttpServlet {
         }
     }
 
-    private void syncExercisesFromDetails(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        try {
-            // 웹앱 실제 경로 가져오기 (이미지 다운로드용)
-            String webappPath = getServletContext().getRealPath("/");
-
-            boolean success = exerciseService.syncExercisesFromDetails(webappPath);
-
-            if (success) {
-                long count = exerciseService.getExerciseCount();
-                request.setAttribute("message", "exerciseDetails에서 " + count + "개의 운동 데이터를 성공적으로 동기화했습니다. (이미지 다운로드 완료)");
-            } else {
-                request.setAttribute("error", "exerciseDetails가 비어있거나 동기화에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            System.err.println("Error syncing exercises from details: " + e.getMessage());
-            e.printStackTrace();
-            request.setAttribute("error", "운동 데이터 동기화 중 오류가 발생했습니다: " + e.getMessage());
-        }
-
-        listExercises(request, response);
-    }
-
-    private void syncImagesFromExerciseDetails(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        try {
-            // 웹앱 실제 경로 가져오기 (이미지 다운로드용)
-            String webappPath = getServletContext().getRealPath("/");
-
-            boolean success = exerciseService.syncImagesFromExerciseDetails(webappPath);
-
-            if (success) {
-                request.setAttribute("message", "exerciseDetails의 이미지를 성공적으로 다운로드하여 images 테이블에 저장했습니다.");
-            } else {
-                request.setAttribute("error", "이미지 동기화에 실패했습니다.");
-            }
-        } catch (Exception e) {
-            System.err.println("Error syncing images from exerciseDetails: " + e.getMessage());
-            e.printStackTrace();
-            request.setAttribute("error", "이미지 동기화 중 오류가 발생했습니다: " + e.getMessage());
-        }
-
-        listExercises(request, response);
-    }
 
     private void searchExercises(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -355,48 +286,18 @@ public class ExerciseServlet extends HttpServlet {
             } else if (results.size() == 1) {
                 // 검색 결과가 1개 → 상세 페이지로 자동 이동
                 ExerciseDTO exercise = results.get(0);
-                ExerciseDetailDTO exerciseDetail = exerciseService.getExerciseDetailById(exercise.getId(), currentLanguage);
 
-                if (exerciseDetail != null) {
-                    request.setAttribute("exercise", exerciseDetail);
-
-                    // 언어 자동 전환 알림
-                    if (languageChanged) {
-                        String langName = "ko".equals(currentLanguage) ? "한국어" : "영어";
-                        request.setAttribute("message", "검색 결과를 찾기 위해 언어를 " + langName + "로 변경했습니다.");
-                    }
-
-                    // Fetch YouTube videos based on exercise data
-                    String videoSearchQuery = youtubeVideoService.determineSearchQuery(
-                        exerciseDetail.getEquipment(),
-                        exerciseDetail.getName()
-                    );
-
-                    if (!videoSearchQuery.isEmpty()) {
-                        List<YouTubeVideoDTO> youtubeVideos =
-                            youtubeVideoService.getVideos(videoSearchQuery, 3);
-                        request.setAttribute("youtubeVideos", youtubeVideos);
-                        request.setAttribute("videoSearchQuery", videoSearchQuery);
-                    }
-
-                    // Fetch Naver Shopping products based on exercise data
-                    String searchQuery = naverShoppingService.determineSearchQuery(
-                        exerciseDetail.getEquipment(),
-                        exerciseDetail.getName()
-                    );
-
-                    if (!searchQuery.isEmpty()) {
-                        List<NaverProductDTO> naverProducts =
-                            naverShoppingService.getProductsFromCombinedQuery(searchQuery, 5);
-                        request.setAttribute("naverProducts", naverProducts);
-                        request.setAttribute("searchQuery", searchQuery);
-                    }
-
-                    request.getRequestDispatcher("/exerciseDetail.jsp").forward(request, response);
-                } else {
-                    request.setAttribute("error", "운동 상세 정보를 찾을 수 없습니다.");
-                    request.getRequestDispatcher("/exercises.jsp").forward(request, response);
+                // ⭐ 언어 자동 전환 알림 메시지를 세션에 저장
+                if (languageChanged) {
+                    String langName = "ko".equals(currentLanguage) ? "한국어" : "영어";
+                    request.getSession().setAttribute("autoLangChangeMessage",
+                        "검색 결과를 찾기 위해 언어를 " + langName + "로 변경했습니다.");
                 }
+
+                // ⭐ Forward 대신 Redirect 사용 → URL이 action=detail로 변경됨!
+                // 이렇게 하면 LanguageServlet의 detail 체크가 정상 작동함
+                response.sendRedirect(request.getContextPath() + "/exercises?action=detail&id=" + exercise.getId());
+
 
             } else {
                 // 검색 결과가 여러 개 → 목록 표시 (페이지네이션 적용)
@@ -419,6 +320,16 @@ public class ExerciseServlet extends HttpServlet {
 
                 // 페이지네이션된 검색 결과 조회
                 List<ExerciseDTO> pagedResults = exerciseService.searchByMultipleFields(query.trim(), currentLanguage, page, pageSize);
+
+                // 세션에 현재 결과의 ID 목록 저장 (언어 변경 시 사용)
+                List<String> exerciseIds = new ArrayList<>();
+                for (ExerciseDTO exercise : pagedResults) {
+                    exerciseIds.add(exercise.getId());
+                }
+                request.getSession().setAttribute("currentExerciseIds", exerciseIds);
+                request.getSession().setAttribute("currentAction", "search");
+                request.getSession().setAttribute("searchQuery", query);
+                request.getSession().setAttribute("currentPage", page);
 
                 request.setAttribute("exercises", pagedResults);
                 request.setAttribute("exerciseCount", pagedResults.size());

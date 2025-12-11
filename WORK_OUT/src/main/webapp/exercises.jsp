@@ -14,7 +14,6 @@
     <c:if test="${not empty error}">
         <div class="message error">${error}</div>
     </c:if>
-
     <c:choose>
         <c:when test="${not empty exercises}">
             <div class="exercise-grid">

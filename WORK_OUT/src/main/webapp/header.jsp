@@ -78,7 +78,7 @@
 </div>
     
     
-        <a href="store.jsp" class="nav-button">${lang == 'ko' ? '스토어' : 'STORE'}</a>
+        <a href="${pageContext.request.contextPath}/store" class="nav-button">${lang == 'ko' ? '스토어' : 'STORE'}</a>
         <a href="${pageContext.request.contextPath}/exercises" class="nav-button">${lang == 'ko' ? '운동' : 'EXERCISES'}</a>
         <c:choose>
             <c:when test="${not empty sessionScope.user}">

@@ -1,7 +1,6 @@
 package data;
 
 import model.CategoryItem;
-import dto.ProductDTO;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,42 +50,7 @@ public class CategoryData {
         return sports;
     }
 
-    /**
-     * Machines 데이터를 반환
-     */
-    public static List<CategoryItem> getMachines() {
-        List<CategoryItem> machines = new ArrayList<>();
-        machines.add(new CategoryItem("Lat Pulldown", "랫 풀다운", "🎰", "upper"));
-        machines.add(new CategoryItem("Chest Press", "체스트 프레스", "⚙️", "upper"));
-        machines.add(new CategoryItem("Bicep Curl", "바이셉 컬", "🔧", "upper"));
-        machines.add(new CategoryItem("Leg Press", "레그 프레스", "⚡", "lower"));
-        machines.add(new CategoryItem("Ab Machine", "복근 머신", "🔩", "upper"));
-        machines.add(new CategoryItem("Row Machine", "로우 머신", "🛠️", "upper"));
-        machines.add(new CategoryItem("Leg Extension", "레그 익스텐션", "⚒️", "lower"));
-        machines.add(new CategoryItem("Glute Machine", "둔근 머신", "🔨", "lower"));
-        machines.add(new CategoryItem("Shoulder Press", "숄더 프레스", "⛏️", "upper"));
-        machines.add(new CategoryItem("Cable Machine", "케이블 머신", "🪛", "etc"));
-        machines.add(new CategoryItem("Smith Machine", "스미스 머신", "🔑", "etc"));
-        machines.add(new CategoryItem("Leg Curl", "레그 컬", "⚙️", "lower"));
-        machines.add(new CategoryItem("Treadmill", "런닝머신", "🔗", "etc"));
-        return machines;
-    }
 
-    /**
-     * Products 데이터를 반환 (Main Page Featured Products - Expanded to 8)
-     */
-    public static List<ProductDTO> getProducts() {
-        List<ProductDTO> products = new ArrayList<>();
-        products.add(new ProductDTO("GORNATION", "Dip Belt", 100, 88, "🥘"));
-        products.add(new ProductDTO("Rogue", "Monster Bands", 25, 22, "🥘"));
-        products.add(new ProductDTO("GORNATION", "Premium Pull Up Station", 122, 102, "🥘"));
-        products.add(new ProductDTO("Rogue", "Dumbbells", 50, 45, "🥘"));
-        products.add(new ProductDTO("Nike", "Resistance Bands Set", 35, 28, "🥘"));
-        products.add(new ProductDTO("Adidas", "Yoga Mat Pro", 40, 35, "🥘"));
-        products.add(new ProductDTO("Under Armour", "Kettlebell 16kg", 65, 58, "🥘"));
-        products.add(new ProductDTO("Reebok", "Adjustable Bench", 180, 160, "🥘"));
-        return products;
-    }
 
     /**
      * 특정 카테고리에 해당하는 아이템만 필터링

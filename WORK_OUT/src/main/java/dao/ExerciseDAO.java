@@ -60,7 +60,7 @@ public class ExerciseDAO {
         try {
             MongoCollection<Document> col = getCollection(language);
             Document doc = new Document()
-                    .append("id", exercise.getId())
+                    .append("_id", exercise.getId())
                     .append("name", exercise.getName())
                     .append("primaryMuscles", exercise.getPrimaryMuscles())
                     .append("secondaryMuscles", exercise.getSecondaryMuscles())
@@ -91,7 +91,7 @@ public class ExerciseDAO {
             List<Document> documents = new ArrayList<>();
             for (ExerciseDTO exercise : exercises) {
                 Document doc = new Document()
-                        .append("id", exercise.getId())
+                        .append("_id", exercise.getId())
                         .append("name", exercise.getName())
                         .append("primaryMuscles", exercise.getPrimaryMuscles())
                         .append("secondaryMuscles", exercise.getSecondaryMuscles())
@@ -113,11 +113,24 @@ public class ExerciseDAO {
 
     /**
      * ID로 운동 조회 (언어별)
+     * String 타입과 ObjectId 타입 모두 지원
      */
     public ExerciseDTO findById(String id, String language) {
         try {
             MongoCollection<Document> col = getCollection(language);
-            Document doc = col.find(Filters.eq("id", id)).first();
+
+            // 1단계: String 타입으로 조회 시도
+            Document doc = col.find(Filters.eq("_id", id)).first();
+
+            // 2단계: 못 찾았고 ID가 ObjectId 형식이면, ObjectId 타입으로 조회 시도
+            if (doc == null && org.bson.types.ObjectId.isValid(id)) {
+                System.out.println("[DEBUG] String _id not found, trying ObjectId for: " + id);
+                doc = col.find(Filters.eq("_id", new org.bson.types.ObjectId(id))).first();
+                if (doc != null) {
+                    System.out.println("[SUCCESS] Found with ObjectId type");
+                }
+            }
+
             return documentToDTO(doc);
         } catch (Exception e) {
             System.err.println("Error finding exercise by id (" + language + "): " + e.getMessage());
@@ -360,7 +373,7 @@ public class ExerciseDAO {
                     .append("secondaryMuscles", exercise.getSecondaryMuscles())
                     .append("level", exercise.getLevel());
 
-            col.updateOne(Filters.eq("id", exercise.getId()), new Document("$set", doc));
+            col.updateOne(Filters.eq("_id", exercise.getId()), new Document("$set", doc));
             return true;
         } catch (Exception e) {
             System.err.println("Error updating exercise (" + language + "): " + e.getMessage());
@@ -382,7 +395,7 @@ public class ExerciseDAO {
     public boolean delete(String id, String language) {
         try {
             MongoCollection<Document> col = getCollection(language);
-            col.deleteOne(Filters.eq("id", id));
+            col.deleteOne(Filters.eq("_id", id));
             return true;
         } catch (Exception e) {
             System.err.println("Error deleting exercise (" + language + "): " + e.getMessage());
@@ -439,7 +452,11 @@ public class ExerciseDAO {
         }
 
         ExerciseDTO exercise = new ExerciseDTO();
-        exercise.setId(doc.getString("id"));
+        // _id는 ObjectId 또는 String일 수 있으므로 안전하게 처리
+        Object idObj = doc.get("_id");
+        if (idObj != null) {
+            exercise.setId(idObj.toString());
+        }
         exercise.setName(doc.getString("name"));
         exercise.setPrimaryMuscles((List<String>) doc.get("primaryMuscles"));
         exercise.setSecondaryMuscles((List<String>) doc.get("secondaryMuscles"));

@@ -6,6 +6,7 @@ import com.mongodb.client.model.Filters;
 import dto.ExerciseDetailDTO;
 import mongoutil.MongoConn;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ExerciseDetailDAO {
      * 언어에 따라 컬렉션 이름 반환
      */
     private String getCollectionName(String language) {
-        return "ko".equals(language) ? "k_exercisesDetails" : "exerciseDetails";
+        return "ko".equals(language) ? "k_exerciseDetails" : "exerciseDetails";
     }
 
     /**
@@ -59,7 +60,7 @@ public class ExerciseDetailDAO {
         try {
             MongoCollection<Document> col = getCollection(language);
             Document doc = new Document()
-                    .append("id", exerciseDetail.getId())
+                    .append("_id", exerciseDetail.getId())
                     .append("name", exerciseDetail.getName())
                     .append("category", exerciseDetail.getCategory())
                     .append("equipment", exerciseDetail.getEquipment())
@@ -96,7 +97,7 @@ public class ExerciseDetailDAO {
             List<Document> documents = new ArrayList<>();
             for (ExerciseDetailDTO exerciseDetail : exerciseDetails) {
                 Document doc = new Document()
-                        .append("id", exerciseDetail.getId())
+                        .append("_id", exerciseDetail.getId())
                         .append("name", exerciseDetail.getName())
                         .append("category", exerciseDetail.getCategory())
                         .append("equipment", exerciseDetail.getEquipment())
@@ -124,11 +125,24 @@ public class ExerciseDetailDAO {
 
     /**
      * ID로 운동 상세 정보 조회 (언어별)
+     * String 타입과 ObjectId 타입 모두 지원
      */
     public ExerciseDetailDTO findById(String id, String language) {
         try {
             MongoCollection<Document> col = getCollection(language);
-            Document doc = col.find(Filters.eq("id", id)).first();
+
+            // 1단계: String 타입으로 조회 시도
+            Document doc = col.find(Filters.eq("_id", id)).first();
+
+            // 2단계: 못 찾았고 ID가 ObjectId 형식이면, ObjectId 타입으로 조회 시도
+            if (doc == null && ObjectId.isValid(id)) {
+                System.out.println("[DEBUG] String _id not found, trying ObjectId for: " + id);
+                doc = col.find(Filters.eq("_id", new ObjectId(id))).first();
+                if (doc != null) {
+                    System.out.println("[SUCCESS] Found with ObjectId type");
+                }
+            }
+
             return documentToDTO(doc);
         } catch (Exception e) {
             System.err.println("Error finding exercise detail by id (" + language + "): " + e.getMessage());
@@ -186,7 +200,7 @@ public class ExerciseDetailDAO {
                     .append("primaryMuscles", exerciseDetail.getPrimaryMuscles())
                     .append("secondaryMuscles", exerciseDetail.getSecondaryMuscles());
 
-            col.updateOne(Filters.eq("id", exerciseDetail.getId()), new Document("$set", doc));
+            col.updateOne(Filters.eq("_id", exerciseDetail.getId()), new Document("$set", doc));
             return true;
         } catch (Exception e) {
             System.err.println("Error updating exercise detail (" + language + "): " + e.getMessage());
@@ -208,7 +222,7 @@ public class ExerciseDetailDAO {
     public boolean delete(String id, String language) {
         try {
             MongoCollection<Document> col = getCollection(language);
-            col.deleteOne(Filters.eq("id", id));
+            col.deleteOne(Filters.eq("_id", id));
             return true;
         } catch (Exception e) {
             System.err.println("Error deleting exercise detail (" + language + "): " + e.getMessage());
@@ -265,7 +279,11 @@ public class ExerciseDetailDAO {
         }
 
         ExerciseDetailDTO exerciseDetail = new ExerciseDetailDTO();
-        exerciseDetail.setId(doc.getString("id"));
+        // _id는 ObjectId 또는 String일 수 있으므로 안전하게 처리
+        Object idObj = doc.get("_id");
+        if (idObj != null) {
+            exerciseDetail.setId(idObj.toString());
+        }
         exerciseDetail.setName(doc.getString("name"));
         exerciseDetail.setCategory(doc.getString("category"));
         exerciseDetail.setEquipment(doc.getString("equipment"));
