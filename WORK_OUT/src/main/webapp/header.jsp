@@ -16,40 +16,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WORK OUT - 운동 플랫폼</title>
     <link rel="stylesheet" type="text/css" href="css/mainstyle.css">
-    <style>
-        /* 언어 토글 버튼 스타일 */
-        .language-toggle {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .lang-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .lang-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .lang-icon {
-            font-size: 18px;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -96,27 +62,3 @@
         </c:choose>
     </div>
 </nav>
-
-<!--
-    언어 토글 버튼
-
-    동작 방식:
-    1. 현재 언어가 한국어(ko)이면 → 영어(en) 버튼 표시
-    2. 현재 언어가 영어(en)이면 → 한국어(ko) 버튼 표시
-    3. 클릭 시 LanguageServlet (/language?lang=XX)로 요청
-    4. LanguageServlet이 세션의 language 속성 변경
-    5. 리다이렉트 규칙:
-       - 상세 페이지(action=detail)에서 전환 → exercises 목록으로
-       - 그 외 페이지에서 전환 → 같은 페이지 유지
-       - Referer 없으면 → index.jsp로
-
-    언어에 따른 DB 조회:
-    - 영어(en): exercises, exerciseDetails 컬렉션 사용
-    - 한국어(ko): k_exercises, k_exercisesDetails 컬렉션 사용
-    - images 컬렉션: en일 때 'id' 필드, ko일 때 'kid' 필드로 조회
-
-    버튼 스타일 변경:
-    - .lang-btn 클래스: Line 28-42에 정의
-    - .lang-icon: Line 49-51에 정의
-    - position: fixed, top: 80px, right: 20px (Line 22-25)
--->

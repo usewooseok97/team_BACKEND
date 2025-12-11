@@ -33,6 +33,38 @@ body {
     font-weight: bold;
     text-decoration: none;
 }
+/* 언어 토글 버튼 스타일 */
+.language-toggle {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.lang-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lang-icon {
+    font-size: 18px;
+}
 
 .search-container {
     flex: 1;
@@ -278,4 +310,38 @@ input[type="radio"].lang-radio:checked + .lang-label {
 .footer-copyright {
     color: #888;
     font-size: 12px;
+}
+
+/* Responsive Design - Mobile */
+@media (min-width: 770px) {
+    /* 네비게이션 바 패딩 조정 */
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    /* 검색 컨테이너 숨기기 */
+    .search-container {
+        display: none !important;
+    }
+
+    /* nav-right 내부 요소 간격 조정 */
+    .nav-right {
+        gap: 10px;
+    }
+
+
+    /* STORE와 LOGIN 버튼을 제외한 모든 nav-button 숨기기 */
+    .nav-button {
+        display: none !important;
+    }
+
+    /* STORE 버튼 보이기 */
+    .nav-button[href*="store"] {
+        display: inline-block !important;
+    }
+
+    /* LOGIN/LOGOUT 버튼 보이기 (login 클래스가 있는 버튼) */
+    .nav-button.login {
+        display: inline-block !important;
+    }
 }

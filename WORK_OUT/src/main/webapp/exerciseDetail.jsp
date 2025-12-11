@@ -137,9 +137,6 @@
             <c:if test="${not empty youtubeVideos}">
                 <div class="detail-section">
                     <h2 class="section-title">${lang == 'ko' ? '튜토리얼 영상' : 'Tutorial Videos'}</h2>
-                    <p class="video-subtitle">
-                        ${lang == 'ko' ? '"' : 'Learn how to perform "'}${videoSearchQuery}${lang == 'ko' ? '" 운동 방법을 배워보세요' : '"'}
-                    </p>
 
                     <div class="youtube-videos-grid">
                         <c:forEach var="video" items="${youtubeVideos}">
@@ -171,9 +168,6 @@
             <c:if test="${not empty naverProducts}">
                 <div class="detail-section">
                     <h2 class="section-title">${lang == 'ko' ? '추천 장비' : 'Recommended Equipment'}</h2>
-                    <p class="product-subtitle">
-                        ${lang == 'ko' ? '"' : 'Related products for "'}${searchQuery}${lang == 'ko' ? '" 관련 상품' : '"'}
-                    </p>
 
                     <div class="naver-products-grid">
                         <c:forEach var="product" items="${naverProducts}">
