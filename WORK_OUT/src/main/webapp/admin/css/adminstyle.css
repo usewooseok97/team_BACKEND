@@ -11,17 +11,9 @@
     z-index: 1000;
 }
 
-.logo {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
+.logo img {
+    max-height: 55px !important;
+    width: auto !important;
 }
 
 .search-container {
