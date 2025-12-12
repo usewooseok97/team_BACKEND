@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${lang == 'ko' ? '회원가입' : 'Sign Up'} - WORK OUT</title>
+    <title>${lang == 'ko' ? '회원가입' : 'Sign Up'} - FitBegin</title>
     <link rel="stylesheet" type="text/css" href="css/formstyle.css">
 </head>
 <body>

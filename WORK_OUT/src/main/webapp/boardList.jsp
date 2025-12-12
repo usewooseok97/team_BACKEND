@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Service - WORK OUT</title>
+    <title>${lang == 'ko' ? '고객센터' : 'Customer Service'} - FitBegin</title>
     <link rel="stylesheet" type="text/css" href="css/boardstyle.css">
 </head>
 <body>

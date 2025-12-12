@@ -14,14 +14,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORK OUT - 운동 플랫폼</title>
+    <title>FitBegin</title>
+	<link rel="icon" href="${pageContext.request.contextPath}/asset/backend_logo.ico">
+    
     <link rel="stylesheet" type="text/css" href="css/mainstyle.css">
 </head>
 <body>
     <!-- Navigation Bar -->
    <nav class="navbar">
    
-    <a href="index.jsp" class="logo">🏋️</a>
+<a href="index.jsp" class="logo">
+    <img src="./asset/backend_logo.png" alt="FitBegin Logo">
+</a>
     <div class="search-container">
         <form action="${pageContext.request.contextPath}/exercises" method="get">
             <input type="hidden" name="action" value="search">

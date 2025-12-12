@@ -344,4 +344,9 @@ input[type="radio"].lang-radio:checked + .lang-label {
     .nav-button.login {
         display: inline-block !important;
     }
+    .logo img {
+    height: 55px;     /* 원하는 높이 */
+    width: auto;      /* 비율 유지 */
+}
+    
 }

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${inquiry != null ? 'Edit Inquiry' : 'Write Inquiry'} - WORK OUT</title>
+    <title>${inquiry != null ? 'Edit Inquiry' : 'Write Inquiry'} - FitBegin</title>
     <link rel="stylesheet" type="text/css" href="css/boardstyle.css">
 </head>
 <body>

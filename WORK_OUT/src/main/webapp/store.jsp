@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${lang == 'en' ? 'Store - WORK OUT' : '스토어 - WORK OUT'}</title>
+    <title>${lang == 'en' ? 'Store - FitBegin' : '스토어 - FitBegin'}</title>
     <link rel="stylesheet" type="text/css" href="css/storestyle.css">
 </head>
 <body>
