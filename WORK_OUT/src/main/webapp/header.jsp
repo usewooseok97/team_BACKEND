@@ -53,11 +53,11 @@
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
                 <c:if test="${sessionScope.user.admin}">
-                    <a href="${pageContext.request.contextPath}/admin/users" class="nav-button">회원관리</a>
+                    <a href="${pageContext.request.contextPath}/admin/users" class="nav-button">${lang == 'ko' ? '회원관리' : 'usermanage'}</a>
                 </c:if>
-                <a href="${pageContext.request.contextPath}/mypage" class="nav-button">마이페이지</a>
-                <span class="nav-button" style="color: white;">${sessionScope.user.name}님</span>
-                <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">로그아웃</a>
+                <a href="${pageContext.request.contextPath}/mypage" class="nav-button">${lang == 'ko' ? '마이페이지' : 'mypage'}</a>
+                <span class="nav-button" style="color: white;">${sessionScope.user.name}${lang == 'ko' ? '님' : ''}</span>
+                <a href="${pageContext.request.contextPath}/login?action=logout" class="nav-button login">${lang == 'ko' ? '로그아웃' : 'log out'}</a>
             </c:when>
             <c:otherwise>
                 <a href="${pageContext.request.contextPath}/register" class="nav-button">${lang == 'ko' ? '회원가입' : 'SIGN UP'}</a>

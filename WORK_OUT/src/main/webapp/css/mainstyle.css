@@ -21,17 +21,9 @@ body {
     z-index: 1000;
 }
 
-.logo {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
+ .logo img {
+    height: 55px;     /* 원하는 높이 */
+    width: auto;      /* 비율 유지 */
 }
 /* 언어 토글 버튼 스타일 */
 .language-toggle {
@@ -313,7 +305,7 @@ input[type="radio"].lang-radio:checked + .lang-label {
 }
 
 /* Responsive Design - Mobile */
-@media (min-width: 770px) {
+@media (max-width: 770px) {
     /* 네비게이션 바 패딩 조정 */
     .navbar {
         padding: 15px 20px;
@@ -339,14 +331,18 @@ input[type="radio"].lang-radio:checked + .lang-label {
     .nav-button[href*="store"] {
         display: inline-block !important;
     }
+        /* 마이페이지 버튼 보이기 */
+    .nav-button[href*="mypage"] {
+        display: inline-block !important;
+    }
+            /* 유저관리 버튼 보이기 */
+    .nav-button[href*="users"] {
+        display: inline-block !important;
+    }
 
     /* LOGIN/LOGOUT 버튼 보이기 (login 클래스가 있는 버튼) */
     .nav-button.login {
         display: inline-block !important;
     }
-    .logo img {
-    height: 55px;     /* 원하는 높이 */
-    width: auto;      /* 비율 유지 */
-}
     
 }
