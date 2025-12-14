@@ -24,7 +24,7 @@
    <nav class="navbar">
    
 <a href="index.jsp" class="logo">
-    <img src="./asset/backend_logo.png" alt="FitBegin Logo">
+    <img src="./asset/backend_logo.png" alt="FitBegin Logo" style="height: 50px">
 </a>
     <div class="search-container">
         <form action="${pageContext.request.contextPath}/exercises" method="get">
