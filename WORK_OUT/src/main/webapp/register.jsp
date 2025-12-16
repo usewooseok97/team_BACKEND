@@ -51,54 +51,6 @@
                    placeholder="${lang == 'ko' ? '이름을 입력하세요' : 'Enter Your Name'}" required>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="email">
-                ${lang == 'ko' ? '이메일' : 'EMAIL'}<span class="required">*</span>
-            </label>
-            <input type="email" id="email" name="email" class="form-input" 
-                   placeholder="${lang == 'ko' ? '이메일을 입력하세요' : 'Enter Your Email'}">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="phone">${lang == 'ko' ? '전화번호' : 'PHONE'}</label>
-            <input type="tel" id="phone" name="phone" class="form-input" 
-                   placeholder="${lang == 'ko' ? '예) 010-1234-5678' : 'Ex)+1(506)-223-4413'}">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">${lang == 'ko' ? '성별' : 'GENDER'}</label>
-            <select name="gender" class="form-input">
-                <option value="">${lang == 'ko' ? '선택' : 'SELECT'}</option>
-                <option value="male">${lang == 'ko' ? '남성' : 'MALE'}</option>
-                <option value="female">${lang == 'ko' ? '여성' : 'FEMALE'}</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="birthdate">${lang == 'ko' ? '생년월일' : 'DATE OF BIRTH'}</label>
-            <input type="date" id="birthdate" name="birthdate" class="form-input">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">${lang == 'ko' ? '운동 경력' : 'WORKOUT EXPERIENCE'}</label>
-            <select name="experience" class="form-input">
-                <option value="">${lang == 'ko' ? '선택' : 'SELECT'}</option>
-                <option value="beginner">${lang == 'ko' ? '초급' : 'BEGINNER'}</option>
-                <option value="intermediate">${lang == 'ko' ? '중급' : 'INTERMEDIATE'}</option>
-                <option value="advanced">${lang == 'ko' ? '고급' : 'ADVANCED'}</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">${lang == 'ko' ? '관심 부위' : 'INTERESTED'}</label>
-            <div class="checkbox-group">
-                <label><input type="checkbox" name="interest" value="upper"> ${lang == 'ko' ? '상체' : 'UPPER'}</label>
-                <label><input type="checkbox" name="interest" value="lower"> ${lang == 'ko' ? '하체' : 'LOWER'}</label>
-                <label><input type="checkbox" name="interest" value="core"> ${lang == 'ko' ? '코어' : 'CORE'}</label>
-                <label><input type="checkbox" name="interest" value="fullbody"> ${lang == 'ko' ? '전신' : 'FULL BODY'}</label>
-            </div>
-        </div>
-
         <button type="submit" class="form-button">${lang == 'ko' ? '회원가입' : 'SIGNUP'}</button>
     </form>
 

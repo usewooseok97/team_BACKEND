@@ -5,7 +5,6 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
 import dto.ExerciseDTO;
 import mongoutil.MongoConn;
-import org.bson.*;
 import org.bson.Document;
 
 import java.util.ArrayList;

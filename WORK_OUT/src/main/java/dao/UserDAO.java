@@ -232,23 +232,23 @@ public class UserDAO {
             return 0;
         }
     }
-    /**
-     * ID와 이메일이 일치하는 회원이 있는지 확인
-     */
-    public boolean checkUserEmail(String username, String email) {
-        try {
-            Document doc = userCollection.find(
-                Filters.and(
-                    Filters.eq("username", username),
-                    Filters.eq("email", email)  // email 필드가 users 컬렉션에 있어야 함
-                )
-            ).first();
-
-            return doc != null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    /**
+//     * ID와 이메일이 일치하는 회원이 있는지 확인
+//     */
+//    public boolean checkUserEmail(String username, String email) {
+//        try {
+//            Document doc = userCollection.find(
+//                Filters.and(
+//                    Filters.eq("username", username),
+//                    Filters.eq("email", email)  // email 필드가 users 컬렉션에 있어야 함
+//                )
+//            ).first();
+//
+//            return doc != null;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
 }

@@ -66,12 +66,12 @@
                                         (${comment.createdAt.toLocalDate()} ${comment.createdAt.toLocalTime().toString().substring(0, 5)})
                                     </span>
                                 </div>
-                                <c:if test="${not empty sessionScope.user && (sessionScope.user.username == comment.author || sessionScope.user.admin)}">
+                                <!-- <c:if test="${not empty sessionScope.user && (sessionScope.user.username == comment.author || sessionScope.user.admin)}">
                                     <a href="${pageContext.request.contextPath}/inquiry?action=deleteInquiryComment&inquiryId=${inquiry.id}&commentId=${comment.id}" 
                                        class="detail-btn btn-danger" 
                                        style="padding: 3px 8px; font-size: 11px;"
                                        onclick="return confirm('Are you sure you want to delete this comment?');">Delete</a>
-                                </c:if>
+                                </c:if> -->
                             </div>
                             <div style="color: #333; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${comment.content}</div>
                         </div>
@@ -109,12 +109,7 @@
                                         (${reply.createdAt.toLocalDate()} ${reply.createdAt.toLocalTime().toString().substring(0, 5)})
                                     </span>
                                 </div>
-                                <c:if test="${not empty sessionScope.user && sessionScope.user.admin}">
-                                    <a href="${pageContext.request.contextPath}/inquiry?action=deleteReply&inquiryId=${inquiry.id}&replyId=${reply.id}" 
-                                       class="detail-btn btn-danger" 
-                                       style="padding: 5px 10px; font-size: 12px;"
-                                       onclick="return confirm('Are you sure you want to delete this reply?');">Delete</a>
-                                </c:if>
+ 
                             </div>
                             <div class="reply-content">${reply.content}</div>
 
@@ -131,12 +126,12 @@
                                                         (${comment.createdAt.toLocalDate()} ${comment.createdAt.toLocalTime().toString().substring(0, 5)})
                                                     </span>
                                                 </div>
-                                                <c:if test="${not empty sessionScope.user && (sessionScope.user.username == comment.author || sessionScope.user.admin)}">
+                                                <!-- <c:if test="${not empty sessionScope.user && (sessionScope.user.username == comment.author || sessionScope.user.admin)}">
                                                     <a href="${pageContext.request.contextPath}/inquiry?action=deleteComment&inquiryId=${inquiry.id}&replyId=${reply.id}&commentId=${comment.id}" 
                                                        class="detail-btn btn-danger" 
                                                        style="padding: 3px 8px; font-size: 11px;"
                                                        onclick="return confirm('Are you sure you want to delete this comment?');">Delete</a>
-                                                </c:if>
+                                                </c:if> -->
                                             </div>
                                             <div style="color: #333; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${comment.content}</div>
                                         </div>

@@ -50,11 +50,6 @@
             ${lang == 'ko' ? '계정이 없으신가요?' : 'Need to sign up?'} 
             <a href="register">${lang == 'ko' ? '회원가입' : 'Sign up'}</a>
         </div>
-        <div class="form-link">
-            ${lang == 'ko' ? '비밀번호를 잊으셨나요?' : 'Forgot your password?'} 
-            <a href="findpassword.jsp">${lang == 'ko' ? '비밀번호 찾기' : 'Find password'}</a>
-        </div>
-
         
     </div>
 <%@ include file="footer.jsp" %>

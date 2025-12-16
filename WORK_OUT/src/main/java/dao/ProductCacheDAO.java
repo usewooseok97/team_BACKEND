@@ -99,23 +99,6 @@ public class ProductCacheDAO {
         }
     }
 
-    /**
-     * Delete old caches (older than specified hours)
-     */
-    public boolean deleteOldCache(int hours) {
-        try {
-            long cutoffTime = System.currentTimeMillis() - (hours * 60 * 60 * 1000L);
-            Date cutoffDate = new Date(cutoffTime);
-
-            collection.deleteMany(Filters.lt("lastUpdated", cutoffDate));
-            System.out.println("Old product caches deleted (older than " + hours + " hours)");
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error deleting old product caches: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     /**
      * Convert ProductCacheDTO to MongoDB Document
